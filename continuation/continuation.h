@@ -8,7 +8,7 @@ typedef struct {
   unsigned long stacklen;
   void *rsp;
   jmp_buf cont_reg;
-} continuation[1];
+} continuation;
 
 void init_continuation(void *rbp);
 #define GETRSP(rsp) asm volatile("mov %%rsp, %0" : "=r"(rsp));
@@ -19,8 +19,8 @@ void init_continuation(void *rbp);
     GETRBP(main_rbp);                                                          \
     init_continuation(main_rbp);                                               \
   }
-int get_continuation(continuation c);
-void call_continuation(continuation c, int val);
-void free_continuation(continuation c);
+int get_continuation(continuation *c);
+void call_continuation(continuation *c, int val);
+void free_continuation(continuation *c);
 
 #endif

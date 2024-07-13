@@ -4,7 +4,7 @@
 continuation cont;
 int func2() {
   alloca(100);
-  if (get_continuation(cont) == 0) {
+  if (get_continuation(&cont) == 0) {
     puts("func2");
     return 0;
   } else {
@@ -24,10 +24,10 @@ int main(int argc, char *argv[]) {
     puts("main_1");
     printf("a: %d\n", a);
     a++;
-    call_continuation(cont, 1);
+    call_continuation(&cont, 1);
   } else {
     puts("main_2");
     printf("a: %d\n", a);
   }
-  free_continuation(cont);
+  free_continuation(&cont);
 }

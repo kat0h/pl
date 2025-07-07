@@ -14,6 +14,17 @@ class LR0
     ret << "・" if @dot == @r.size
     ret << "]"
   end
+
+  def eql?(other)
+    self.class == other.class &&
+      @l == other.l &&
+      @r == other.r &&
+      @dot == other.dot
+  end
+
+  def hash
+    [@l, @r, @dot].hash
+  end
 end
 
 LR1 = Struct.new :l, :r, :dot, :ls, :act do

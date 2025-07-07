@@ -1,10 +1,17 @@
-LR0 = Struct.new :l, :r, :dot, :act do
+class LR0
+  attr_accessor :l, :r, :dot, :act
+  def initialize l, r, dot, act
+    @l = l
+    @r = r
+    @dot = dot
+    @act = act
+  end
   def inspect
-    ret = "[#{l} → "
-    r.each_index do |i|
-      ret << (i == dot ? "・" : "") + "#{r[i]}" + (i != r.size - 1 ? " " : "")
+    ret = "[#{@l} → "
+    @r.each_index do |i|
+      ret << (i == @dot ? "・" : "") + "#{@r[i]}" + (i != @r.size - 1 ? " " : "")
     end
-    ret << "・" if dot == r.size
+    ret << "・" if @dot == @r.size
     ret << "]"
   end
 end

@@ -38,7 +38,7 @@ def resolve_conflict_by_precedence(g,i,a,act,ca_i,debug=false)
     end
   }
   if act_reduce.size > 1
-    throw "can't resolve reduce/reduce conflict"
+    throw :reduce_reduce_conflict
   end
   act_shift = act_shift.first
   act_reduce = act_reduce.first

@@ -27,8 +27,12 @@ class LR0
   end
 end
 
-LR1 = Struct.new :l, :r, :dot, :ls, :act do
-  def complete? = r.size == dot
+class LR1 < LR0
+  attr_accessor :ls
+  def initialize l, r, dot, ls, act
+    super(l, r, dot, act)
+    @ls = ls
+  end
   def inspect
     ret = "[#{l} → "
     r.each_index do |i|
@@ -37,10 +41,19 @@ LR1 = Struct.new :l, :r, :dot, :ls, :act do
     ret << "・" if dot == r.size
     ret << ", #{ls}]"
   end
+  def complete? = r.size == dot
   def coreeql?(lr1) = l == lr1.l && r == lr1.r && dot == lr1.dot
   def to_rule = Rule.new(l, r, act)
   def lr0 = LR0.new(l, r, dot, act)
-  def kernel?(g) = l == g.s || !dot.zero? ? true : false
+  def kernel?(g) = l == g.s || !dot.zero?
+  def eql?(other)
+    self.class == other.class &&
+      @l == other.l &&
+      @r == other.r &&
+      @dot == other.dot &&
+      @ls == other.ls
+  end
+  def hash = [@l, @r, @dot, @ls].hash
 end
 
 def printLR1Set set, kernel_only=nil # LR(1)項集合を見易く表示するやつ

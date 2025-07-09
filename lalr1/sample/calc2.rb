@@ -27,8 +27,8 @@ Calc2 = Grammer.new(
 
 def repl
   # calc = generate_lr1_parser(Calc2)
-  calc = generate_lalr1_parser(Calc2)
-  calc.print_table
+  parser = generate_lalr1_parser(Calc2)
+  parser.print_table
   while true
     begin
       print "calc> "
@@ -37,7 +37,7 @@ def repl
       prompt = input.chomp
       next if prompt.size.zero?
       lex = Lexer.new prompt
-      result = calc.parse lex, false
+      result = parser.parse lex, true
       case result
       in [:accept, n]
         p n

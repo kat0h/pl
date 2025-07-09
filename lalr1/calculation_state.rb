@@ -5,7 +5,7 @@ require_relative "resolve_conflict"
 # a : 記号列
 def first g,a,visited=Set[]
   return Set[] if visited.include?(a); visited<<a
-  g.vt.include?(a)?Set[a]:g.p.find_all{_1.l==a}.map{first g,_1.r[0],visited}.reduce(&:|)
+  g.vt.include?(a)?Set[a]:g.p.find_all{it.l==a}.map{first g,_1.r[0],visited}.reduce(&:|)
 end
 
 # closure

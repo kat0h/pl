@@ -23,7 +23,7 @@ end
 
 class Rule
   attr_reader :l, :r, :act
-  def initialize(l, r, act)
+  def initialize(l, r, act = -> {})
     @l = l
     @r = r
     @act = act

@@ -23,7 +23,7 @@ conflict = Grammer.new(
   precedence: []
 )
 
-parser = generate_lr1_parser conflict
-parser.print_table
+# parser = generate_lr1_parser conflict
+# parser.print_table
 parser = generate_lalr1_parser conflict
 parser.print_table

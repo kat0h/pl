@@ -26,8 +26,8 @@ Calc2 = Grammer.new(
 )
 
 def repl
-  # calc = generate_lr1_parser(Calc2)
-  parser = generate_lalr1_parser(Calc2)
+  parser = generate_lr1_parser(Calc2)
+  # parser = generate_lalr1_parser(Calc2)
   parser.print_table
   while true
     begin

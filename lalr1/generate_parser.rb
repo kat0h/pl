@@ -6,7 +6,7 @@ def generate_lr1_parser grammer
   i0 = closure grammer, Set[start]
   ca = canonicalset grammer, i0
   ca_indexed = Hash[ca.each_with_index.to_a]
-  # ca.each{printLR1Set(it);puts}
+  ca.each{printLR1Set(it);puts}
   e=start.dup;e.dot=e.r.size;
   action = ca_indexed.keys.map{|i|grammer.vt.map{|a|action grammer,ca,i,a,e}}
   goto = ca_indexed.keys.map{|i|grammer.vn.map{|a|ca_indexed[goto grammer,i,a]}}

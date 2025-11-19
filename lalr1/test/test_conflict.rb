@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require_relative '../main'
 
@@ -8,12 +10,12 @@ class TestConflict < Minitest::Test
       vt: Set[:word, :EOF],
       s: :S,
       p: Set[
-        Rule.new(:S, [:sequence], -> v {}),
-        Rule.new(:sequence, [], -> v {}),
-        Rule.new(:sequence, [:maybeword], -> v {}),
-        Rule.new(:sequence, [:sequence, :word], -> v {}),
-        Rule.new(:maybeword, [], -> v {}),
-        Rule.new(:maybeword, [:word], -> v {}),
+        Rule.new(:S, [:sequence], ->(v) {}),
+        Rule.new(:sequence, [], ->(v) {}),
+        Rule.new(:sequence, [:maybeword], ->(v) {}),
+        Rule.new(:sequence, %i[sequence word], ->(v) {}),
+        Rule.new(:maybeword, [], ->(v) {}),
+        Rule.new(:maybeword, [:word], ->(v) {})
       ],
       precedence: []
     )

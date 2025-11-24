@@ -1,17 +1,20 @@
 #include "continuation.h"
 #include <stdio.h>
 
-#define N_PRIME 1000 // 求める素数の個数
-int number; // 素数の候補
+// 移植性のあるCの継続ライブラリ 多田好克 より
+// https://ipsj.ixsq.nii.ac.jp/records/30459
+// 一部改変
+
+#define N_PRIME 10000
+int number;
 
 int n_prime;
-int prime[N_PRIME + 1];           // prime[n]はn番目の素数
-continuation p_cont[N_PRIME + 1]; // 整除できるかを調べる継続
-int candidate;                    // 素数の候補を示すフラグ
+int prime[N_PRIME + 1];
+continuation p_cont[N_PRIME + 1];
+int candidate;
 
 void is_prime(int n) {
   continuation temp;
-  // 継続の取得
   if (get_continuation(&temp) == 0)
     p_cont[n] = temp;
   if (number % prime[n]) {
@@ -34,7 +37,7 @@ int main(int argc, char *argv[]) {
     printf("%d, ", prime[n_prime]);
     fflush(stdout);
     if (n_prime < N_PRIME)
-      is_prime(n_prime++); // 次の数を調べる
+      is_prime(n_prime++);
   } else {
     number += 1;
     candidate = 1;

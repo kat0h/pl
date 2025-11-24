@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <setjmp.h>
+#include <string.h>
 #include "continuation.h"
 static void *main_rbp;
 
@@ -12,17 +13,11 @@ int get_continuation(continuation *c) {
   c->rsp = rsp;
   c->stacklen = main_rbp - rsp + 1;
   c->stack = malloc(sizeof(char) * c->stacklen);
-  char *dst = c->stack;
-  char *src = c->rsp;
-  for (int i = c->stacklen; 0 <= --i;)
-    *dst++ = *src++;
+  memmove(c->stack, c->rsp, c->stacklen);
   return setjmp(c->cont_reg);
 }
 void _cc(continuation *c, int val) {
-  char *dst = c->rsp;
-  char *src = c->stack;
-  for (int i = c->stacklen; 0 <= --i;)
-    *dst++ = *src++;
+  memmove(c->rsp, c->stack, c->stacklen);
   longjmp(c->cont_reg, val);
 }
 void call_continuation(continuation *c, int val) {

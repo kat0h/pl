@@ -1,4 +1,5 @@
 #!/bin/sh
+# ライブラリの動作を確認
 
 echo gcc
 gcc cont.c continuation.c

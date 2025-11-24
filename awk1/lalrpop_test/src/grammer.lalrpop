@@ -1,0 +1,44 @@
+use std::str::FromStr;
+use crate::ast::{Expr, Opcode};
+
+grammar;
+
+pub Parser: Box<Expr> = {
+  Expr,
+};
+
+Expr: Box<Expr> = {
+    #[precedence(level="0")]
+    Atom,
+
+    // * /
+    #[precedence(level="1")]
+    #[assoc(side="left")]
+    <l:Expr> <o:Op2> <r:Expr> => Box::new(Expr::Op(l, o, r)),
+
+    // + -
+    #[precedence(level="2")]
+    #[assoc(side="left")]
+    <l:Expr> <o:Op1> <r:Expr> => Box::new(Expr::Op(l, o, r)),
+
+};
+
+Atom: Box<Expr> = {
+  <n:Num> => Box::new(Expr::Number(n)),
+  "(" <e:Expr> ")" => e,
+};
+
+Num: i32 = {
+    r"[0-9]+" => i32::from_str(<>).unwrap()
+};
+
+Op1: Opcode = {
+    "+" => Opcode::Add,
+    "-" => Opcode::Sub
+};
+
+Op2: Opcode = {
+    "*" => Opcode::Mul,
+    "/" => Opcode::Div
+};
+

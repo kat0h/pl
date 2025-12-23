@@ -47,7 +47,7 @@ $ make test
 
 TDDの実践の記録について下記に示す。
 
-演習ではインタプリタのパーサに`\`(1 2 3)`のような記法を実装することにした。
+演習ではインタプリタのパーサに`` `(1 2 3) `` のような記法を実装することにした。
 この記法は、`(quote (1 2 3))`の糖衣構文とする。
 
 よって、始めにテストとして`test.c`に`test_quote_equivalence`関数を追加した。二つの入力が一致するかをチェックする。
@@ -60,4 +60,38 @@ void test_quote_equivalence() {
     assert(value_equal(a, b));
 }
 ```
+
+この段階での`make test`の実行結果は下記の通りで、テストが失敗している。
+
+```
+./sample/test.sh
+Building the 'scm' interpreter...
+make[1]: Entering directory '/home/kat0h/ghq/github.com/kat0h/pl/scheme'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/home/kat0h/ghq/github.com/kat0h/pl/scheme'
+Starting regression tests for sample Scheme programs...
+RUNNING TEST: sample/anonymous_recursion.scm
+~~ 省略 ~~
+PASSED TEST: sample/takeuchi.scm
+All regression tests passed successfully!
+./test_runner
+main.c:339 of parse_paren: Unexpected token '
+make: *** [Makefile:21: test] Error 1
+```
+
+次に、このテストを通過するようにパーサのプログラムを変更することとした。
+しかし、実装したところ、`parse_program()`はトップレベルに括弧で囲われたものしか想定していないことが分かった。
+そこで、一旦`test.c`を書き換え、次のようにした。
+
+```
+void test_quote_equivalence() {
+    // (quote (1 2 3)) and '(1 2 3) should be parsed to the same structure
+    value *a = parse_program("(print (quote (1 2 3)))");
+    value *b = parse_program("(print `(1 2 3))");
+    assert(value_equal(a, b));
+}
+```
+
+この変更により、書き換えたパーサのコードがテストに通過した。
+
 

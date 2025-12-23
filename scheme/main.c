@@ -270,10 +270,10 @@ value *parse_value() {
 #ifdef DEBUG
   printf("parse_value: %s\n", input);
 #endif
-  // numeber
+  // number
   if ('0' <= *input && *input <= '9') {
     return mk_number_value(strtof(input, &input));
-    // symbol
+  // symbol
   } else if (is_symbol_char()) {
     char buf[SYMBOL_LEN_MAX];
     int i = 0;
@@ -285,9 +285,16 @@ value *parse_value() {
     }
     buf[i] = '\0';
     return mk_symbol_value(buf);
+  } else if (*input == '`') {
+    input++;
+    // Parse quoted expression: '(...) => (quote ...)
+    value *quoted = parse_value();
+    value *quote_sym = mk_symbol_value("quote");
+    value *list = mk_cell_value(quoted, mk_empty_cell_value());
+    value *expr = mk_cell_value(quote_sym, list);
+    return expr;
   } else if (*input == '"') {
     input++;
-    // TODO
     char buf[SYMBOL_LEN_MAX];
     int i = 0;
     while (*input != '"') {

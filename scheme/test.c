@@ -6,8 +6,8 @@
 
 void test_quote_equivalence() {
     // (quote (1 2 3)) and '(1 2 3) should be parsed to the same structure
-    value *a = parse_program("(quote (1 2 3))");
-    value *b = parse_program("'(1 2 3)");
+    value *a = parse_program("(print (quote (1 2 3)))");
+    value *b = parse_program("(print `(1 2 3))");
     assert(value_equal(a, b));
 }
 

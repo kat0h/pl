@@ -783,7 +783,7 @@ frame *mk_initial_env() {
   return env;
 }
 void repl() {
-  puts("kat0h's scheme");
+  puts("Interpriter");
   char buf[1024];
   frame *environ = mk_initial_env();
   printf("scm> ");
@@ -801,6 +801,7 @@ void repl() {
     printf("scm> ");
   }
 }
+#ifndef TEST_BUILD
 int main(int argc, char *argv[]) {
   srand(time(NULL));
   if (argc < 2) {
@@ -817,3 +818,4 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < MEMP; i++)
     free(MEM[i]);
 }
+#endif

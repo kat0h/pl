@@ -83,6 +83,14 @@ value *eval_lambda(lambda *f, cell *args, frame *env);
 value *mk_cell_value(value *car, value *cdr);
 value *mk_empty_cell_value();
 int value_equal(value *a, value *b);
-value *parse_program(char *program);
+
+value *mk_number_value(float number);
+value *mk_symbol_value(char *symbol);
+value *mk_empty_cell_value();
+value *mk_cell_value(value *car, value *cdr);
+value *mk_lambda_value(cell *args, value *body, frame *env);
+value *mk_boolean_value(int b);
+value *mk_ifunc_value(ifunc f);
+value *mk_string_value(char *str);
 
 #endif

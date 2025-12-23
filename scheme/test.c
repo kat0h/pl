@@ -1,8 +1,7 @@
-
 #include <assert.h>
 #include "main.h"
 #include "continuation.h"
-
+#include "parse.h"
 
 void test_quote_equivalence() {
     // (quote (1 2 3)) and '(1 2 3) should be parsed to the same structure

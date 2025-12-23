@@ -1,11 +1,11 @@
 CC = gcc
 CFLAGS = -g -Wall
-SRCS = main.c continuation.c
+SRCS = main.c continuation.c parse.c
 OBJS = $(SRCS:.c=.o)
 TARGET = scm
 
 TEST_SRCS = test.c
-TEST_OBJS_FILES = test.o main.test.o continuation.o
+TEST_OBJS_FILES = test.o main.test.o continuation.o parse.o
 TEST_RUNNER = test_runner
 
 all: $(TARGET)

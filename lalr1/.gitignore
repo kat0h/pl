@@ -2,3 +2,7 @@
 *.output
 *.tab.*
 
+
+# Bundler managed gems
+vendor/bundle
+.bundle

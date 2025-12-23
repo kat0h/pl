@@ -1,6 +1,10 @@
 require_relative "calculation_state"
 require_relative "parser"
 
+# Moved from inside generate_lalr1_parser to prevent method redefinition warnings
+def lr1set_core_eql?(a, b)=[a, b].map{_1.map{|s|s.lr0}.to_set}.reduce{_1==_2}
+def toLR0set(set) = set.map{it.lr0}.to_set
+
 def generate_lr1_parser grammer
   start = grammer.p.find{ it.l == grammer.s }.to_lr1(0, :EOF)
   i0 = closure grammer, Set[start]
@@ -37,7 +41,6 @@ def generate_lalr1_parser grammer
   lr1cs = canonicalSet.new(ca, ca_indexed)
 
   # マージできる状態を探索
-  def lr1set_core_eql?(a, b)=[a, b].map{_1.map{|s|s.lr0}.to_set}.reduce{_1==_2}
   visited = Array.new(ca.size,0);lst = {}
   while i=visited.index(0) do
     idx=((i+1)...ca.size).select{visited[_1]==0&&lr1set_core_eql?(ca[i],ca[_1])}
@@ -66,7 +69,6 @@ def generate_lalr1_parser grammer
   lalr1cs = canonicalSet.new(merged_ca, merged_ca_indexed)
   # merged_ca.each{printLR1Set(it);puts}
 
-  def toLR0set(set) = set.map{it.lr0}.to_set
   v = grammer.vn | grammer.vt
   gototable = merged_ca_indexed.keys.map { |i|
     v.map { |a|

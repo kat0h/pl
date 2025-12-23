@@ -8,3 +8,10 @@ ruby sample/calc2.rb
 
 - コンパイラ(湯浅太一)
 - コンパイラ -第二版-
+
+## テストの実行
+
+```sh
+bundle install
+rake test
+```

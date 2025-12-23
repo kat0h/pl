@@ -69,7 +69,7 @@ def printLR1Set set, kernel_only=nil # LR(1)項集合を見易く表示するや
     i.r.each_index do
       ret<<(_1==i.dot ? "・":"")+"#{i.r[_1]}"+(_1!=i.r.size-1?" ":"")
     end
-    ret<<" ・"if i.dot==i.r.size
+    ret<< " ・" if i.dot==i.r.size
     ret<<", #{ls.map{_1==:EOF ??$:_1}.join("/")}]"
     puts ret
   end

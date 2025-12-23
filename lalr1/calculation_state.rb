@@ -4,7 +4,7 @@ require_relative "resolve_conflict"
 # g : Grammer
 # a : 記号列
 def first g,a,visited=Set[]
-  return Set[] if visited.include?(a); visited<<a
+  return Set[] if visited.include?(a); visited<< a
   g.vt.include?(a)?Set[a]:g.p.find_all{it.l==a}.map{first g,_1.r[0],visited}.reduce(&:|)
 end
 
@@ -23,7 +23,7 @@ def closure g,i
     g.p.find_all{_1.l==b}.each{|ruleb|
       firsts.each{|y|
         t=LR1.new(b,ruleb.r,0,y,ruleb.act)
-        queue<<t if i_.add? t
+        queue<< t if i_.add? t
       }
     }
   end
@@ -45,11 +45,11 @@ def canonicalset g,i0
   x,y,s=Set[i0],Set[],g.vn|g.vt
   while !x.empty?
     i=x.first;x.delete i
-    y<<i
+    y<< i
     s.each do
       id=goto g,i,_1
       next if id.size()==0
-      x<<id if !x.include?(id)&&!y.include?(id)
+      x<< id if !x.include?(id)&&!y.include?(id)
     end
   end
   y

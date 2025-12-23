@@ -40,3 +40,24 @@ $ make
 ```
 $ make test
 ```
+
+退行テストのスクリプトとtest_runnerが正常に終了すればテストに通過している。
+
+## TDDの実践
+
+TDDの実践の記録について下記に示す。
+
+演習ではインタプリタのパーサに`\`(1 2 3)`のような記法を実装することにした。
+この記法は、`(quote (1 2 3))`の糖衣構文とする。
+
+よって、始めにテストとして`test.c`に`test_quote_equivalence`関数を追加した。二つの入力が一致するかをチェックする。
+
+```
+void test_quote_equivalence() {
+    // (quote (1 2 3)) and '(1 2 3) should be parsed to the same structure
+    value *a = parse_program("(quote (1 2 3))");
+    value *b = parse_program("`(1 2 3)");
+    assert(value_equal(a, b));
+}
+```
+

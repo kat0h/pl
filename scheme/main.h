@@ -82,5 +82,7 @@ value *eval(value *exp, frame *env);
 value *eval_lambda(lambda *f, cell *args, frame *env);
 value *mk_cell_value(value *car, value *cdr);
 value *mk_empty_cell_value();
+int value_equal(value *a, value *b);
+value *parse_program(char *program);
 
 #endif

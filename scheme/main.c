@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 #include "main.h"
 #include "continuation.h"
 
@@ -212,6 +213,30 @@ void print_frame(frame *env) {
     env = env->parent;
   }
   puts("....................................................\n");
+}
+// Deep comparison of value* (numbers, symbols, lists, etc.)
+int value_equal(value *a, value *b) {
+  if (a == b) return 1;
+  if (!a || !b) return 0;
+  if (TYPEOF(a) != TYPEOF(b)) return 0;
+  switch (TYPEOF(a)) {
+    case NUMBER:
+      return E_NUMBER(a) == E_NUMBER(b);
+    case SYMBOL:
+      return strcmp(E_SYMBOL(a), E_SYMBOL(b)) == 0;
+    case STRING:
+      return strcmp(E_STRING(a), E_STRING(b)) == 0;
+    case BOOLEAN:
+      return E_BOOLEAN(a) == E_BOOLEAN(b);
+    case CELL: {
+      cell *ca = E_CELL(a), *cb = E_CELL(b);
+      if (!ca && !cb) return 1;
+      if (!ca || !cb) return 0;
+      return value_equal(ca->car, cb->car) && value_equal(ca->cdr, cb->cdr);
+    }
+    default:
+      return 0;
+  }
 }
 
 // parser

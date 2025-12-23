@@ -1,6 +1,9 @@
 #include "main.h"
 #include "continuation.h"
 
+static void *main_rbp;
+static void *e_value;
+
 value *mk_continuation_value(continuation *cont) {
   value *e = xmalloc(sizeof(value));
   TYPEOF(e) = CONTINUATION;

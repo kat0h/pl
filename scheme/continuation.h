@@ -29,8 +29,4 @@ void free_continuation(continuation *c);
 value *mk_continuation_value(continuation *cont);
 value *ifunc_callcc(value *args, frame *env);
 
-static void *main_rbp;
-// 継続の返り値を受け渡すための変数
-static void *e_value;
-
 #endif

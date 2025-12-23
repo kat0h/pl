@@ -17,6 +17,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 test: $(TEST_RUNNER)
+	./sample/test.sh
 	./$(TEST_RUNNER)
 
 $(TEST_RUNNER): $(TEST_OBJS_FILES)

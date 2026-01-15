@@ -9,6 +9,7 @@
 #include "main.h"
 #include "continuation.h"
 #include "parse.h"
+#include "repl.h"
 
 // #define DEBUG
 
@@ -681,25 +682,6 @@ frame *mk_initial_env() {
   add_kv_to_frame(env, "length", mk_ifunc_value(ifunc_length));
   add_kv_to_frame(env, "sleep", mk_ifunc_value(ifunc_sleep));
   return env;
-}
-void repl() {
-  puts("Interpriter");
-  char buf[1024];
-  frame *environ = mk_initial_env();
-  printf("scm> ");
-  while (fgets(buf, 1024, stdin) != NULL) {
-    input = buf;
-    if (*input == '\n') {
-      printf("scm> ");
-      continue;
-    }
-    value *program = parse_value();
-    value *ret = eval_top(program, environ);
-    printf("=> ");
-    print_value(ret);
-    puts("");
-    printf("scm> ");
-  }
 }
 #ifndef TEST_BUILD
 int main(int argc, char *argv[]) {

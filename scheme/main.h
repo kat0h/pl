@@ -93,4 +93,9 @@ value *mk_boolean_value(int b);
 value *mk_ifunc_value(ifunc f);
 value *mk_string_value(char *str);
 
+
+frame *mk_initial_env();
+value *eval_top(value *exp, frame *env);
+void print_value(value *e);
+
 #endif

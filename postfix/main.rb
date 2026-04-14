@@ -72,7 +72,7 @@ def eval_postfix(p, args)
 
       v1 = stack.pop
       v2 = stack.pop
-      return :error if (!v1 in Integer) || (!v2 in Integer)
+      return :error if !(v1 in Integer) || !(v2 in Integer)
 
       stack.push v2 < v1 ? 1 : 0
     when :gt
@@ -80,7 +80,7 @@ def eval_postfix(p, args)
 
       v1 = stack.pop
       v2 = stack.pop
-      return :error if (!v1 in Integer) || (!v2 in Integer)
+      return :error if !(v1 in Integer) || !(v2 in Integer)
 
       stack.push v2 > v1 ? 1 : 0
     when :eq
@@ -88,7 +88,7 @@ def eval_postfix(p, args)
 
       v1 = stack.pop
       v2 = stack.pop
-      return :error if (!v1 in Integer) || (!v2 in Integer)
+      return :error if !(v1 in Integer) || !(v2 in Integer)
 
       stack.push v2 == v1 ? 1 : 0
     when :pop

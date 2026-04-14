@@ -135,6 +135,78 @@ test_cases = [
     p: [postfix, 4, 4, nget, 5, nget, mul, mul, swap, 4, nget, mul, add, add],
     args: [3, 4, 5, 2],
     v_expected: 25 # Given a, b, c, x, calculates ax^2 + bx + c.
+  },
+  # pp.13 (exec の例: サブルーチン的な動作)
+  {
+    p: [postfix, 1, [2, mul], exec],
+    args: [7],
+    v_expected: 14 # (2 mul) is a doubling subroutine.
+  }, {
+    p: [postfix, 0, [0, swap, sub], 7, swap, exec],
+    args: [],
+    v_expected: -7 # (0 swap sub) is a negation subroutine.
+  },
+  # pp.13 (exec 関連のエラーケース)
+  {
+    p: [postfix, 0, [2, mul]],
+    args: [],
+    v_expected: error # Final top of stack is not an integer.
+  }, {
+    p: [postfix, 0, 3, [2, mul], gt],
+    args: [],
+    v_expected: error # Executable sequence where number expected.
+  }, {
+    p: [postfix, 0, 3, exec],
+    args: [],
+    v_expected: error # Number where executable sequence expected.
+  },
+  # pp.13 (複雑な exec の組み合わせ)
+  {
+    p: [postfix, 0, [7, swap, exec], [0, swap, sub], swap, exec],
+    args: [],
+    v_expected: -7
+  }, {
+    p: [postfix, 2, [mul, sub], [1, nget, mul], 4, nget, swap, exec, swap, exec],
+    args: [-10, 2],
+    v_expected: 42 # Calculates b - a * b^2
+  },
+  # pp.13 (sel の例: 条件選択)
+  {
+    p: [postfix, 1, 2, 3, sel],
+    args: [1],
+    v_expected: 2
+  }, {
+    p: [postfix, 1, 2, 3, sel],
+    args: [0],
+    v_expected: 3
+  }, {
+    p: [postfix, 1, 2, 3, sel],
+    args: [17],
+    v_expected: 2 # Any nonzero number is "true."
+  }, {
+    p: [postfix, 0, [2, mul], 3, 4, sel],
+    args: [],
+    v_expected: error # Test not a number.
+  },
+  # pp.13 (sel と exec の組み合わせ)
+  {
+    p: [postfix, 4, lt, [add], [mul], sel, exec],
+    args: [3, 4, 5, 6],
+    v_expected: 30
+  }, {
+    p: [postfix, 4, lt, [add], [mul], sel, exec],
+    args: [4, 3, 5, 6],
+    v_expected: 11
+  },
+  # pp.13 (絶対値プログラム)
+  {
+    p: [postfix, 1, 1, nget, 0, lt, [0, swap, sub], [], sel, exec],
+    args: [-7],
+    v_expected: 7
+  }, {
+    p: [postfix, 1, 1, nget, 0, lt, [0, swap, sub], [], sel, exec],
+    args: [6],
+    v_expected: 6
   }
 ]
 
@@ -157,3 +229,4 @@ test_cases.each_with_index do |c, i|
   puts "v_actual:   #{v_actual}"
   throw 'assert equal'
 end
+puts "All tests passed"

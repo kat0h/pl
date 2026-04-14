@@ -101,6 +101,40 @@ test_cases = [
     p: [postfix, 2, 4, sub, div],
     args: [4, 5],
     v_expected: error # Divide by zero.
+  },
+  # pp.12 (nget の基本動作)
+  {
+    p: [postfix, 2, 1, nget],
+    args: [4, 5],
+    v_expected: 4
+  }, {
+    p: [postfix, 2, 2, nget],
+    args: [4, 5],
+    v_expected: 5
+  },
+  # pp.12 (nget のエラーケース)
+  {
+    p: [postfix, 2, 3, nget],
+    args: [4, 5],
+    v_expected: error # Index 3 is too large.
+  }, {
+    p: [postfix, 2, 0, nget],
+    args: [4, 5],
+    v_expected: error # Index 0 is too small.
+  }, {
+    p: [postfix, 1, [2, mul], 1, nget],
+    args: [3],
+    v_expected: error # Value at index 1 is not a number but an executable sequence.
+  },
+  # pp.12 (nget の応用例)
+  {
+    p: [postfix, 1, 1, nget, mul],
+    args: [5],
+    v_expected: 25 # A squaring program.
+  }, {
+    p: [postfix, 4, 4, nget, 5, nget, mul, mul, swap, 4, nget, mul, add, add],
+    args: [3, 4, 5, 2],
+    v_expected: 25 # Given a, b, c, x, calculates ax^2 + bx + c.
   }
 ]
 

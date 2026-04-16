@@ -15,7 +15,7 @@ def exec = :exec
 def error = :error
 def command_is_value?(command) = command.is_a?(Integer) || command.is_a?(Array)
 
-DEBUG = true
+DEBUG = false
 def eval_postfix_ver2(p, args)
   puts "Input:   \t #{p}" if DEBUG
   puts "Args:   \t #{args}\n\n" if DEBUG
@@ -28,7 +28,7 @@ def eval_postfix_ver2(p, args)
   loop do
     break unless (i = seq.find_index { |command| !command_is_value?(command) })
 
-    puts "Step: #{seq}"
+    puts "Step: #{seq}" if DEBUG
 
     command = seq[i]
     case command

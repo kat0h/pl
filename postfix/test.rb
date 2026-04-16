@@ -1,4 +1,5 @@
 require_relative './main'
+require_relative './main_ver2.rb'
 
 # given a, b, c, x, calculates ax^2 + bx + c pp.12
 # P = [postfix, 4, 4, nget, 5, nget, mul, mul, swap, 4, nget, mul, add, add]
@@ -211,22 +212,23 @@ test_cases = [
 ]
 
 test_cases.each_with_index do |c, i|
+  puts "===================Test case #{i + 1}"
   p = c[:p]
   args = c[:args]
   v_expected = c[:v_expected]
-  v_actual = eval_postfix(p, args)
-  print "Test case #{i + 1}"
+  v_actual = eval_postfix_ver2(p, args)
   if v_actual == v_expected
-    puts ' Passed'
+    puts 'Passed'
     next
   else
-    puts ' Failed'
+    puts 'Failed'
   end
 
   puts "P:          #{p}"
   puts "args:       #{args}"
   puts "v_expected: #{v_expected}"
   puts "v_actual:   #{v_actual}"
+  puts
   throw 'assert equal'
 end
 puts "All tests passed"

@@ -13,6 +13,7 @@ def sel = :sel
 def nget = :nget
 def exec = :exec
 def error = :error
+def command_is_value?(command) = command.is_a?(Integer) || command.is_a?(Array)
 
 DEBUG = true
 def eval_postfix_ver2(p, args)
@@ -23,47 +24,107 @@ def eval_postfix_ver2(p, args)
   argc_actual = args.size
   return error if argc_expected != argc_actual
 
-  seq = args.reverse + p[2..]
+  seq = args.reverse + p[2..] # 評価途中の値
   loop do
-    finish = true
-    seq.each_with_index do |c, i|
-      next if c.is_a?(Integer) || c.is_a?(Array)
+    break unless (i = seq.find_index { |command| !command_is_value?(command) })
 
-      case c
-      when nget
-        v_index = seq[i - 1]
-        return error if v_index.nil? || !v_index.is_a?(Integer)
+    puts "Step: #{seq}"
 
-        seq.delete_at v_index
-        return error if seq[i - 1 - v_index].nil?
+    command = seq[i]
+    case command
+    when nget
+      v_index = seq[i - 1]
+      return error if (i - v_index - 1) < 0 || v_index < 1
 
-        seq[i - 1] = seq[i - 1 - v_index]
-        finish = false
-        break
-      when swap
-        seq.delete_at i
-        return error if i < 2
+      v_i = seq[i - v_index - 1]
+      return error unless v_i.is_a?(Integer)
 
-        tmp = seq[i - 1]
-        seq[i - 1] = seq[i - 2]
-        seq[i - 2] = tmp
-        finish = false
-        break
-      when exec
-        seq[(i - 1)..i] = seq[i - 1]
-        finish = false
-        break
-      else
-        puts "Undefined command \"#{c}\""
-        return error
-      end
+      seq[(i - 1)..i] = [v_i]
+    when swap
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      seq[(i - 2)..i] = [v1, v2]
+    when exec
+      exe_seq = seq[i - 1]
+      return error unless exe_seq.is_a?(Array)
+
+      seq[(i - 1)..i] = exe_seq
+    when mul
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      return error if !v1.is_a?(Integer) || !v2.is_a?(Integer)
+
+      seq[(i - 2)..i] = [v2 * v1]
+    when sub
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      return error if !v1.is_a?(Integer) || !v2.is_a?(Integer)
+
+      seq[(i - 2)..i] = [v2 - v1]
+    when add
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      return error if !v1.is_a?(Integer) || !v2.is_a?(Integer)
+
+      seq[(i - 2)..i] = [v2 + v1]
+    when div
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      return error if !v1.is_a?(Integer) || !v2.is_a?(Integer) || v1.zero?
+
+      seq[(i - 2)..i] = [(v2 / v1.to_f).truncate]
+    when rem
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      return error if !v1.is_a?(Integer) || !v2.is_a?(Integer) || v1.zero?
+
+      seq[(i - 2)..i] = [v2.remainder(v1)]
+    when lt
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      return error if !v1.is_a?(Integer) || !v2.is_a?(Integer)
+
+      seq[(i - 2)..i] = [v2 < v1 ? 1 : 0]
+    when gt
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      return error if !v1.is_a?(Integer) || !v2.is_a?(Integer)
+
+      seq[(i - 2)..i] = [v2 > v1 ? 1 : 0]
+    when eq
+      return error if i < 2
+
+      v2, v1 = seq[(i - 2)..(i - 1)]
+      return error if !v1.is_a?(Integer) || !v2.is_a?(Integer)
+
+      seq[(i - 2)..i] = [v2 == v1 ? 1 : 0]
+    when pop
+      return error if i.zero?
+
+      seq[(i - 1)..i] = []
+    when sel
+      return error if i < 3
+
+      v3, v2, v1 = seq[(i - 3)..(i - 1)]
+      return error if !v3.is_a?(Integer)
+
+      seq[(i - 3)..i] = [v3 != 0 ? v2 : v1]
+    else
+      p "undefined command: #{command}"
+      return error
     end
-    puts "Step: #{seq}" if DEBUG
-    break if finish
   end
-end
 
-v = eval_postfix_ver2 [postfix, 2, [mul, sub], [1, nget, mul], 4, nget, swap, exec, swap, exec], [-10, 2]
-puts '結果↓'
-puts v
+  return error unless seq.last.is_a?(Integer)
+
+  seq.last
+end
 # 42 # Calculates b - a * b^2

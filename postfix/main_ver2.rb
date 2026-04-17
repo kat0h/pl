@@ -15,7 +15,7 @@ def exec = :exec
 def error = :error
 def command_is_value?(command) = command.is_a?(Integer) || command.is_a?(Array)
 
-DEBUG = false
+DEBUG = true
 def eval_postfix_ver2(p, args)
   puts "Input:   \t #{p}" if DEBUG
   puts "Args:   \t #{args}\n\n" if DEBUG

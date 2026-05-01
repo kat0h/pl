@@ -27,16 +27,6 @@
 #define CDR(x) (E_CELL(x)->cdr)
 
 void *xmalloc(size_t size);
-// environment
-struct Frame {
-  frame *parent;
-  kv *kv;
-};
-struct KV {
-  char *key;
-  value *value;
-  kv *next;
-};
 
 value *eval(value *exp, frame *env);
 value *eval_lambda(lambda *f, cell *args, frame *env);

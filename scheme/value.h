@@ -6,9 +6,7 @@ typedef struct Value value;
 typedef struct Cell cell;
 typedef struct Lambda lambda;
 typedef struct Frame frame;
-typedef struct KeyVal keyval;
 typedef struct Continuation continuation;
-typedef struct KV kv;
 typedef value *(*ifunc)(value *, frame *);
 struct Value {
   enum {

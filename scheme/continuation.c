@@ -1,5 +1,6 @@
 #include "continuation.h"
 #include "main.h"
+#include "eval.h"
 
 static void *main_rbp;
 static void *e_value;

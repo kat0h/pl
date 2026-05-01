@@ -3,6 +3,7 @@
 #include "main.h"
 #include "repl.h"
 #include "parse.h"
+#include "eval.h"
 
 void repl() {
   puts("Interpriter");

@@ -1,6 +1,18 @@
 #ifndef VALUE_H
 #define VALUE_H
 
+#define TYPEOF(x) (x->type)
+#define E_NUMBER(x) (x->body.number)
+#define E_SYMBOL(x) (x->body.symbol)
+#define E_CELL(x) (x->body.cell)
+#define E_LAMBDA(x) (x->body.lmd)
+#define E_IFUNC(x) (x->body.func)
+#define E_BOOLEAN(x) (x->body.boolean)
+#define E_STRING(x) (x->body.string)
+#define E_CONTINUATION(x) (x->body.cont)
+#define CAR(x) (E_CELL(x)->car)
+#define CDR(x) (E_CELL(x)->cdr)
+
 // types
 typedef struct Value value;
 typedef struct Cell cell;

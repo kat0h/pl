@@ -30,7 +30,6 @@ void *xmalloc(size_t size) {
   return p;
 }
 
-
 // eval
 value *eval_cell(value *exp, frame *env);
 value *eval(value *exp, frame *env) {

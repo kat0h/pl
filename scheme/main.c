@@ -1,13 +1,8 @@
-#include <alloca.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
-#include <string.h>
-
 #include "main.h"
+
 #include "continuation.h"
 #include "parse.h"
 #include "repl.h"
@@ -15,20 +10,6 @@
 #include "env.h"
 
 // #define DEBUG
-
-// utils
-size_t MEMP = 0;
-void *MEM[1000000] = {0};
-void *xmalloc(size_t size) {
-  void *p = malloc(size);
-  // MEM[MEMP++] = p;
-  // if (MEMP == 1000000) {
-  //   throw("Internal Error xmalloc");
-  // }
-  if (p == NULL)
-    throw("malloc failed");
-  return p;
-}
 
 // eval
 value *eval_cell(value *exp, frame *env);
@@ -485,8 +466,5 @@ int main(int argc, char *argv[]) {
     frame *environ = mk_initial_env();
     eval_list(program, environ, mk_empty_cell_value());
   }
-
-  for (int i = 0; i < MEMP; i++)
-    free(MEM[i]);
 }
 #endif

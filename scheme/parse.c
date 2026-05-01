@@ -1,6 +1,8 @@
 // parser
-#include "main.h"
 #include "parse.h"
+
+#include "main.h"
+#include "memory.h"
 
 char *input;
 

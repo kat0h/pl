@@ -1,6 +1,8 @@
 #include <string.h>
-#include "main.h"
+#include <stdio.h>
 #include "value.h"
+
+#include "memory.h"
 
 void print_list(cell *c);
 void print_value(value *e) {

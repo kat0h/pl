@@ -1,5 +1,6 @@
 #ifndef ENV_H
 #define ENV_H
+#include "value.h"
 
 typedef struct KeyVal keyval;
 typedef struct KV kv;

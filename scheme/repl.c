@@ -1,7 +1,8 @@
+#include <stdio.h>
+
 #include "main.h"
 #include "repl.h"
 #include "parse.h"
-#include "value.h"
 
 void repl() {
   puts("Interpriter");

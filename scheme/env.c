@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <string.h>
+#include "env.h"
 
 #include "main.h"
 #include "value.h"
-#include "env.h"
+#include "memory.h"
 
 // env
 frame *make_frame(frame *parent) {

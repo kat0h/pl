@@ -1,11 +1,11 @@
-#include "main.h"
 #include "continuation.h"
+#include "main.h"
 
 static void *main_rbp;
 static void *e_value;
 
 value *mk_continuation_value(continuation *cont) {
-  value *e = xmalloc(sizeof(value));
+  value *e = malloc(sizeof(value));
   TYPEOF(e) = CONTINUATION;
   E_CONTINUATION(e) = cont;
   return e;
@@ -48,7 +48,7 @@ value *ifunc_callcc(value *args, frame *env) {
   value *lmd = eval(CAR(args), env);
   if (TYPEOF(lmd) != LAMBDA)
     throw("call/cc error: not lambda");
-  continuation *cont = xmalloc(sizeof(continuation));
+  continuation *cont = malloc(sizeof(continuation));
   value *r = get_continuation(cont);
   if (r == NULL) {
     // lambdaにcontinuationを渡して実行

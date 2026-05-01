@@ -1,6 +1,7 @@
 #ifndef CONTINUATION_H
 #define CONTINUATION_H
 #include <setjmp.h>
+#include "value.h"
 
 typedef struct Value expr;
 typedef struct Continuation continuation;

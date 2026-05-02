@@ -417,6 +417,26 @@ value *ifunc_sleep(value *args, frame *env) {
   return mk_number_value(0);
 }
 
+value *ifunc_callcc(value *args, frame *env) {
+  if (cell_len(E_CELL(args)) != 1)
+    throw("call/cc error: invalid number of arguments");
+  value *lmd = eval(CAR(args), env);
+  if (TYPEOF(lmd) != LAMBDA)
+    throw("call/cc error: not lambda");
+  value *cont = mk_continuation_value();
+  value *r = get_continuation(cont);
+  if (r == NULL) {
+    // lambdaにcontinuationを渡して実行
+    return eval_lambda(
+        E_LAMBDA(lmd),
+        E_CELL(mk_cell_value(cont, mk_empty_cell_value())),
+        env);
+  } else {
+    // continuationが呼ばれた場合
+    return r;
+  }
+}
+
 // main
 frame *mk_initial_env() {
   frame *env = make_frame(NULL);

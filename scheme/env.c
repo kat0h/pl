@@ -8,13 +8,13 @@
 
 // env
 frame *make_frame(frame *parent) {
-  frame *f = xmalloc(sizeof(frame));
+  frame *f = malloc(sizeof(frame));
   f->parent = parent;
   f->kv = NULL;
   return f;
 }
-void add_kv_to_frame(frame *env, char *symbol, value *value) {
-  kv *i = xmalloc(sizeof(kv));
+void add_kv_to_frame(frame *env, char *symbol, value value) {
+  kv *i = malloc(sizeof(kv));
   i->key = symbol;
   i->value = value;
   i->next = env->kv;
@@ -38,18 +38,18 @@ kv *find_pair_recursive(frame *env, char *symbol) {
     return i;
   return find_pair_recursive(env->parent, symbol);
 }
-value *define_to_env(frame *env, char *symbol, value *value) {
+value define_to_env(frame *env, char *symbol, value value) {
   add_kv_to_frame(env, symbol, value);
   return mk_symbol_value(symbol);
 }
-value *set_to_env(frame *env, char *symbol, value *value) {
+value set_to_env(frame *env, char *symbol, value value) {
   kv *i = find_pair_recursive(env, symbol);
   if (i == NULL)
     throw("symbol %s not found", symbol);
   i->value = value;
   return mk_symbol_value(symbol);
 }
-value *lookup_frame(frame *env, char *symbol) {
+value lookup_frame(frame *env, char *symbol) {
   kv *v = find_pair_recursive(env, symbol);
   return v->value;
 }

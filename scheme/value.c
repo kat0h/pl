@@ -2,15 +2,17 @@
 #include <stdio.h>
 #include "value.h"
 
+#include "main.h"
 #include "memory.h"
+#include "continuation.h"
 
-void print_list(cell *c);
-void print_value(value *e) {
-  if (e == NULL)
-    return;
-  switch (TYPEOF(e)) {
+void print_list(struct Cell *c);
+void print_value(value v) {
+  if (!VALUEISAPOINTER(v))
+    throw("value is not a pointer");
+  switch (TYPEOF(v)) {
   case NUMBER: {
-    float n = E_NUMBER(e);
+    float n = E_NUMBER(v);
     if (n - (float)(int)n == 0.0)
       printf("%d", (int)n);
     else
@@ -18,33 +20,34 @@ void print_value(value *e) {
     break;
   }
   case SYMBOL:
-    printf("%s", E_SYMBOL(e));
+    printf("%s", E_SYMBOL(v));
     break;
   case CELL:
-    print_list(E_CELL(e));
+    print_list(E_CELL(v));
     break;
   case LAMBDA:
     printf("LAMBDA ");
-    print_list(E_LAMBDA(e)->args);
+    print_list(E_LAMBDA(v)->args);
     break;
   case IFUNC:
-    printf("IFUNC %p", E_IFUNC(e));
+    printf("IFUNC %p", E_IFUNC(v));
     break;
   case BOOLEAN:
-    printf("%s", E_NUMBER(e) ? "#t" : "#f");
+    printf("%s", E_BOOLEAN(v) ? "#t" : "#f");
     break;
   case STRING:
-    printf("%s", E_STRING(e));
+    printf("%s", E_STRING(v));
     break;
   case CONTINUATION:
     printf("CONTINUATION");
     break;
   }
 }
-void print_list(cell *c) {
+void print_list(struct Cell *c) {
   printf("(");
   while (c != NULL) {
     print_value(c->car);
+    if ((void*)c->cdr == NULL) break;
     if (TYPEOF(c->cdr) != CELL) {
       printf(" . ");
       print_value(c->cdr);
@@ -57,64 +60,72 @@ void print_list(cell *c) {
   }
   printf(")");
 }
-value *mk_number_value(float number) {
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = NUMBER;
-  E_NUMBER(e) = number;
-  return e;
+
+value mk_number_value(float number) {
+  struct Number *n = malloc(sizeof(struct Number));
+  n->flags = 0;
+  n->flags = (n->flags & ~TYPEMASK) | NUMBER;
+  n->number = number;
+  return (value) n;
 }
-value *mk_symbol_value(char *symbol) {
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = SYMBOL;
-  char *s = xmalloc(strlen(symbol) + 1);
-  strcpy(s, symbol);
-  E_SYMBOL(e) = s;
-  return e;
+value mk_symbol_value(char *symbol) {
+  struct Symbol *s = malloc(sizeof(struct Symbol));
+  s->flags = 0;
+  s->flags = (s->flags & ~TYPEMASK) | SYMBOL;
+  s->symbol = malloc(strlen(symbol) + 1);
+  strcpy(s->symbol, symbol);
+  return (value) s;
 }
-value *mk_empty_cell_value() {
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = CELL;
-  E_CELL(e) = NULL;
-  return e;
+value mk_cell_value(value car, value cdr) {
+  struct Cell *c = malloc(sizeof(struct Cell));
+  c->flags = 0;
+  c->flags = (c->flags & ~TYPEMASK) | CELL;
+  c->car = car;
+  c->cdr = cdr;
+  return (value) c;
 }
-value *mk_cell_value(value *car, value *cdr) {
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = CELL;
-  E_CELL(e) = xmalloc(sizeof(cell));
-  CAR(e) = car;
-  CDR(e) = cdr;
-  return e;
+value mk_empty_cell_value() {
+  return (value) NULL;
 }
-value *mk_lambda_value(cell *args, value *body, frame *env) {
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = LAMBDA;
-  E_LAMBDA(e) = xmalloc(sizeof(lambda));
-  E_LAMBDA(e)->args = args;
-  E_LAMBDA(e)->body = body;
-  E_LAMBDA(e)->env = env;
-  return e;
+value mk_lambda_value(struct Cell *args, value body, frame *env) {
+  struct Lambda *l = malloc(sizeof(struct Lambda));
+  l->flags = 0;
+  l->flags = (l->flags & ~TYPEMASK) | LAMBDA;
+  l->args = args;
+  l->body = body;
+  l->env  = env;
+  return (value) l;
 }
-value *mk_boolean_value(int b) {
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = BOOLEAN;
-  E_BOOLEAN(e) = b;
-  return e;
+value mk_ifunc_value(ifunc f) {
+  struct Ifunc *v = malloc(sizeof(struct Ifunc));
+  v->flags = 0;
+  v->flags = (v->flags & ~TYPEMASK) | IFUNC;
+  v->func = f;
+  return (value) v;
 }
-value *mk_ifunc_value(ifunc f) {
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = IFUNC;
-  E_IFUNC(e) = f;
-  return e;
+value mk_boolean_value(int b) {
+  struct Boolean *v = malloc(sizeof(struct Boolean));
+  v->flags = 0;
+  v->flags = (v->flags & ~TYPEMASK) | BOOLEAN;
+  v->boolean = b;
+  return (value) v;
 }
-value *mk_string_value(char *str) {
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = STRING;
-  char *s = xmalloc(strlen(str) + 1);
-  strcpy(s, str);
-  E_STRING(e) = s;
-  return e;
+value mk_string_value(char *str) {
+  struct String *s = malloc(sizeof(struct String));
+  s->flags = 0;
+  s->flags = (s->flags & ~TYPEMASK) | STRING;
+  s->string = malloc(strlen(str) + 1);
+  strcpy(s->string, str);
+  return (value) s;
 }
-int cell_len(cell *c) {
+value mk_continuation_value() {
+  struct Continuation *c = malloc(sizeof(struct Continuation));
+  c->flags = 0;
+  c->flags = (c->flags & ~TYPEMASK) | CONTINUATION;
+  return (value) c;
+}
+
+int cell_len(struct Cell *c) {
   int len = 0;
   while (c != NULL) {
     len++;
@@ -122,16 +133,18 @@ int cell_len(cell *c) {
   }
   return len;
 }
-int truish(value *e) {
+
+int truish(value v) {
   // truish: E → T
   // truish = λε . (ε = false → false, true)
-  if (TYPEOF(e) == BOOLEAN) {
-    return E_BOOLEAN(e);
+  if (TYPEOF(v) == BOOLEAN) {
+    return E_BOOLEAN(v);
   }
   return 1;
 }
+
 // Deep comparison of value* (numbers, symbols, lists, etc.)
-int value_equal(value *a, value *b) {
+int value_equal(value a, value b) {
   if (a == b) return 1;
   if (!a || !b) return 0;
   if (TYPEOF(a) != TYPEOF(b)) return 0;
@@ -145,7 +158,7 @@ int value_equal(value *a, value *b) {
     case BOOLEAN:
       return E_BOOLEAN(a) == E_BOOLEAN(b);
     case CELL: {
-      cell *ca = E_CELL(a), *cb = E_CELL(b);
+      struct Cell *ca = E_CELL(a), *cb = E_CELL(b);
       if (!ca && !cb) return 1;
       if (!ca || !cb) return 0;
       return value_equal(ca->car, cb->car) && value_equal(ca->cdr, cb->cdr);

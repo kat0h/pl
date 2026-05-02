@@ -1,18 +1,14 @@
 #include "continuation.h"
+
 #include "main.h"
 #include "eval.h"
 
 static void *main_rbp;
 static void *e_value;
 
-value *mk_continuation_value(continuation *cont) {
-  value *e = malloc(sizeof(value));
-  TYPEOF(e) = CONTINUATION;
-  E_CONTINUATION(e) = cont;
-  return e;
-}
 void init_continuation(void *rbp) { main_rbp = rbp; }
-void *get_continuation(continuation *c) {
+void *get_continuation(value *cont) {
+  continuation *c = E_CONTINUATION(cont);
   void *rsp;
   GETRSP(rsp);
   c->rsp = rsp;
@@ -43,22 +39,3 @@ void call_continuation(continuation *c, void *value) {
   _cc(c, value);
 }
 void free_continuation(continuation *c) { free(c->stack); }
-value *ifunc_callcc(value *args, frame *env) {
-  if (cell_len(E_CELL(args)) != 1)
-    throw("call/cc error: invalid number of arguments");
-  value *lmd = eval(CAR(args), env);
-  if (TYPEOF(lmd) != LAMBDA)
-    throw("call/cc error: not lambda");
-  continuation *cont = malloc(sizeof(continuation));
-  value *r = get_continuation(cont);
-  if (r == NULL) {
-    // lambdaにcontinuationを渡して実行
-    return eval_lambda(
-        E_LAMBDA(lmd),
-        E_CELL(mk_cell_value(mk_continuation_value(cont), mk_empty_cell_value())),
-        env);
-  } else {
-    // continuationが呼ばれた場合
-    return r;
-  }
-}

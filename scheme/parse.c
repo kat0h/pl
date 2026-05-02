@@ -16,7 +16,7 @@ int is_symbol_char() {
          *input == '=' || *input == '<' || *input == '>' || *input == '*' ||
          *input == '/' || ('0' <= *input && *input <= '9');
 }
-value *parse_hash_literal() {
+value parse_hash_literal() {
   if (*input != '#')
     throw("parse error: not hash literal");
   input++;
@@ -30,8 +30,8 @@ value *parse_hash_literal() {
     throw("parse error: unexpected token %c", *input);
   }
 }
-value *parse_list();
-value *parse_value() {
+value parse_list();
+value parse_value() {
 #ifdef DEBUG
   printf("parse_value: %s\n", input);
 #endif
@@ -53,10 +53,10 @@ value *parse_value() {
   } else if (*input == '`') {
     input++;
     // Parse quoted expression: '(...) => (quote ...)
-    value *quoted = parse_value();
-    value *quote_sym = mk_symbol_value("quote");
-    value *list = mk_cell_value(quoted, mk_empty_cell_value());
-    value *expr = mk_cell_value(quote_sym, list);
+    value quoted = parse_value();
+    value quote_sym = mk_symbol_value("quote");
+    value list = mk_cell_value(quoted, mk_empty_cell_value());
+    value expr = mk_cell_value(quote_sym, list);
     return expr;
   } else if (*input == '"') {
     input++;
@@ -79,7 +79,7 @@ value *parse_value() {
   }
   throw("Unexpected valueession '%c' \"%s\"", *input, input);
 }
-value *parse_list() {
+value parse_list() {
 #ifdef DEBUG
   printf("parse_list: %s\n", input);
 #endif
@@ -88,49 +88,45 @@ value *parse_list() {
     input++;
     return mk_empty_cell_value();
   }
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = CELL;
-  E_CELL(e) = xmalloc(sizeof(cell));
-  CAR(e) = parse_value();
+  value car = parse_value();
   skip_ws();
-  CDR(e) = parse_list();
+  value cdr = parse_list();
   skip_ws();
+  value e = mk_cell_value(car, cdr);
   return e;
 }
-value *parse_paren() {
+value parse_paren() {
 #ifdef DEBUG
   printf("parse_paren: %s\n", input);
 #endif
   if (*input == '(') {
     input++;
     skip_ws();
-    value *e = parse_list();
+    value e = parse_list();
     skip_ws();
     return e;
   }
   throw("Unexpected token %c", *input);
 }
-value *parse_program_list() {
+value parse_program_list() {
 #ifdef DEBUG
   printf("parse_program_list: %s\n", input);
 #endif
   if (*input == '\0')
     return mk_empty_cell_value();
-  value *e = xmalloc(sizeof(value));
-  TYPEOF(e) = CELL;
-  E_CELL(e) = xmalloc(sizeof(cell));
-  CAR(e) = parse_paren();
+  value car = parse_paren();
   skip_ws();
-  CDR(e) = parse_program_list();
+  value cdr = parse_program_list();
   skip_ws();
+  value e = mk_cell_value(car, cdr);
   return e;
 }
-value *parse_program(char *prg) {
+value parse_program(char *prg) {
 #ifdef DEBUG
   printf("parse_program: %s\n", prg);
 #endif
   input = prg;
-  value *e = parse_program_list();
+  value e = parse_program_list();
   if (*input != '\0') {
     throw("parser error input is not empty \"%s\"", input);
   }

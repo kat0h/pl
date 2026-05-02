@@ -1,72 +1,98 @@
 #ifndef VALUE_H
 #define VALUE_H
+typedef unsigned long value;
 
-#define TYPEOF(x) (x->type)
-#define E_NUMBER(x) (x->body.number)
-#define E_SYMBOL(x) (x->body.symbol)
-#define E_CELL(x) (x->body.cell)
-#define E_LAMBDA(x) (x->body.lmd)
-#define E_IFUNC(x) (x->body.func)
-#define E_BOOLEAN(x) (x->body.boolean)
-#define E_STRING(x) (x->body.string)
-#define E_CONTINUATION(x) (x->body.cont)
-#define CAR(x) (E_CELL(x)->car)
-#define CDR(x) (E_CELL(x)->cdr)
+// based on https://github.com/tadd/schaf/blob/main/schaf.c
+// VALUE
+//  0b......000 Pointer
 
-// types
-typedef struct Value value;
-typedef struct Cell cell;
-typedef struct Lambda lambda;
-typedef struct Frame frame;
-typedef struct Continuation continuation;
-typedef value *(*ifunc)(value *, frame *);
-struct Value {
-  enum {
-    NUMBER,
-    SYMBOL,
-    CELL,
-    LAMBDA,
-    IFUNC,
-    BOOLEAN,
-    STRING,
-    CONTINUATION
-  } type;
-  union {
-    float number;
-    char *symbol;
-    cell *cell;
-    lambda *lmd;
-    ifunc func;
-    int boolean;
-    char *string;
-    continuation *cont;
-  } body;
+// flagsの下位6bitを型とする
+#define TYPEMASK 0b111111
+// Type
+#define NUMBER       1
+#define SYMBOL       2
+#define CELL         3
+#define LAMBDA       4
+#define IFUNC        5
+#define BOOLEAN      6
+#define STRING       7
+#define CONTINUATION 8
+
+struct Header {
+  unsigned long flags;
+};
+struct Number {
+  unsigned long flags;
+  float number;
+};
+struct Symbol {
+  unsigned long flags;
+  char *symbol;
 };
 struct Cell {
-  value *car;
-  value *cdr;
+  unsigned long flags;
+  value car;
+  value cdr;
 };
-int cell_len(cell *c);
+typedef struct Frame frame;
+#include "env.h"
 struct Lambda {
-  cell *args;
-  value *body;
+  unsigned long flags;
+  struct Cell *args;
+  value body;
   frame *env;
 };
+struct Boolean {
+  unsigned long flags;
+  int boolean;
+};
+typedef value (*ifunc)(value, frame *);
+struct Ifunc {
+  unsigned long flags;
+  ifunc func;
+};
+struct String {
+  unsigned long flags;
+  char *string;
+};
+#include <setjmp.h>
+struct Continuation {
+  unsigned long flags;
+  void *stack;
+  unsigned long stacklen;
+  void *rsp;
+  jmp_buf cont_reg;
+};
 
-void print_list(cell *c);
-void print_value(value *e);
-void print_list(cell *c);
-value *mk_number_value(float number);
-value *mk_symbol_value(char *symbol);
-value *mk_empty_cell_value();
-value *mk_cell_value(value *car, value *cdr);
-value *mk_lambda_value(cell *args, value *body, frame *env);
-value *mk_boolean_value(int b);
-value *mk_ifunc_value(ifunc f);
-value *mk_string_value(char *str);
-int cell_len(cell *c);
-int truish(value *e);
-int value_equal(value *a, value *b);
+#define VALUEISAPOINTER(v) ((v & 0b111) == 0)
+#define TYPEOF(v) (((struct Header*)v)->flags & TYPEMASK)
+
+#define E_NUMBER(v)  (((struct Number*)v)->number)
+#define E_SYMBOL(v)  (((struct Symbol*)v)->symbol)
+#define E_CELL(v)    ((struct Cell*)v)
+#define CAR(v)       (E_CELL(v)->car)
+#define CDR(v)       (E_CELL(v)->cdr)
+#define E_LAMBDA(v)  ((struct Lambda*)v)
+#define E_IFUNC(v)   (((struct Ifunc*)v)->func)
+#define E_BOOLEAN(v) (((struct Boolean*)v)->boolean)
+#define E_STRING(v)  (((struct String*)v)->string)
+#define E_CONTINUATION(x) (((struct Continuation*)v)->cont)
+
+value mk_number_value(float number);
+value mk_symbol_value(char *symbol);
+value mk_cell_value(value car, value cdr);
+value mk_empty_cell_value();
+value mk_lambda_value(struct Cell *args, value body, frame *env);
+value mk_ifunc_value(ifunc f);
+value mk_boolean_value(int b);
+value mk_string_value(char *str);
+value mk_continuation_value();
+
+void print_value(value v);
+void print_list(struct Cell *c);
+int cell_len(struct Cell *c);
+int truish(value e);
+int value_equal(value a, value b);
 
 #endif
 

@@ -76,7 +76,7 @@ struct Continuation {
 #define E_IFUNC(v)   (((struct Ifunc*)v)->func)
 #define E_BOOLEAN(v) (((struct Boolean*)v)->boolean)
 #define E_STRING(v)  (((struct String*)v)->string)
-#define E_CONTINUATION(x) (((struct Continuation*)v)->cont)
+#define E_CONTINUATION(v) (((struct Continuation*)v))
 
 value mk_number_value(float number);
 value mk_symbol_value(char *symbol);

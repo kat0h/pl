@@ -4,11 +4,11 @@
 #include "eval.h"
 
 static void *main_rbp;
-static void *e_value;
+static value e_value;
 
 void init_continuation(void *rbp) { main_rbp = rbp; }
-void *get_continuation(value *cont) {
-  continuation *c = E_CONTINUATION(cont);
+value get_continuation(value cont) {
+  struct Continuation *c = E_CONTINUATION(cont);
   void *rsp;
   GETRSP(rsp);
   c->rsp = rsp;
@@ -19,11 +19,11 @@ void *get_continuation(value *cont) {
   for (int i = c->stacklen; 0 <= --i;)
     *dst++ = *src++;
   if (setjmp(c->cont_reg) == 0)
-    return NULL;
+    return (value)NULL;
   else
     return e_value;
 }
-void _cc(continuation *c, void *value) {
+void _cc(struct Continuation *c, value value) {
   char *dst = c->rsp;
   char *src = c->stack;
   for (int i = c->stacklen; 0 <= --i;)
@@ -31,11 +31,11 @@ void _cc(continuation *c, void *value) {
   e_value = value;
   longjmp(c->cont_reg, 1);
 }
-void call_continuation(continuation *c, void *value) {
+void call_continuation(struct Continuation *c, value value) {
   volatile void *q = 0;
   do {
     q = alloca(16);
   } while (q > c->rsp);
   _cc(c, value);
 }
-void free_continuation(continuation *c) { free(c->stack); }
+void free_continuation(struct Continuation *c) { free(c->stack); }

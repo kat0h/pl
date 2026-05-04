@@ -1,4 +1,4 @@
-CC = gcc
+CC = clang
 CFLAGS = -g -Wall
 SRCS = main.c continuation.c parse.c repl.c value.c env.c memory.c eval.c
 OBJS = $(SRCS:.c=.o)

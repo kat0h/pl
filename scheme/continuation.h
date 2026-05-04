@@ -20,8 +20,8 @@ void init_continuation(void *rbp);
     init_continuation(main_rbp);                                               \
   }
 
-void *get_continuation(value *cont);
-void call_continuation(continuation *c, void *value);
-void free_continuation(continuation *c);
+value get_continuation(value cont);
+void call_continuation(struct Continuation *c, value value);
+void free_continuation(struct Continuation *c);
 
 #endif

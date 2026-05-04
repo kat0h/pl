@@ -71,9 +71,9 @@ struct Continuation {
 #define E_SYMBOL(v)  (((struct Symbol*)v)->symbol)
 #define E_CELL(v)    ((struct Cell*)v)
 #define CELL_IS_EMPTY(v) \
-  (E_CELL(v)->car == (value)NULL && E_CELL(v)->cdr == (value)NULL)
-#define CAR(v)       (E_CELL(v)->car)
-#define CDR(v)       (E_CELL(v)->cdr)
+  (v->car == (value)NULL && v->cdr == (value)NULL)
+#define CAR(v)       (v->car)
+#define CDR(v)       (v->cdr)
 #define E_LAMBDA(v)  ((struct Lambda*)v)
 #define E_IFUNC(v)   (((struct Ifunc*)v)->func)
 #define E_BOOLEAN(v) (((struct Boolean*)v)->boolean)

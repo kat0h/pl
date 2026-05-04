@@ -46,9 +46,9 @@ void print_value(value v) {
 void print_list(struct Cell *c) {
   printf("(");
   if (CELL_IS_EMPTY(c)) goto end;
-  print_value(c->car);
+  print_value(CAR(c));
   printf(" . ");
-  print_value(c->cdr);
+  print_value(CDR(c));
 end:
   printf(")");
 }
@@ -122,11 +122,13 @@ value mk_continuation_value() {
   return (value) c;
 }
 
+// リストが()で終端されていない時の動作は未定義
 int cell_len(struct Cell *c) {
   int len = 0;
-  while (c != NULL) {
+  for(;;){
     len++;
-    c = E_CELL(c->cdr);
+    c = E_CELL(CDR(c));
+    if (CELL_IS_EMPTY(c)) break;
   }
   return len;
 }
@@ -158,7 +160,7 @@ int value_equal(value a, value b) {
       struct Cell *ca = E_CELL(a), *cb = E_CELL(b);
       if (!ca && !cb) return 1;
       if (!ca || !cb) return 0;
-      return value_equal(ca->car, cb->car) && value_equal(ca->cdr, cb->cdr);
+      return value_equal(CAR(ca), CAR(cb)) && value_equal(CDR(ca), CDR(cb));
     }
     default:
       return 0;

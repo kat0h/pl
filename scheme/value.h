@@ -70,6 +70,8 @@ struct Continuation {
 #define E_NUMBER(v)  (((struct Number*)v)->number)
 #define E_SYMBOL(v)  (((struct Symbol*)v)->symbol)
 #define E_CELL(v)    ((struct Cell*)v)
+#define CELL_IS_EMPTY(v) \
+  (E_CELL(v)->car == (value)NULL && E_CELL(v)->cdr == (value)NULL)
 #define CAR(v)       (E_CELL(v)->car)
 #define CDR(v)       (E_CELL(v)->cdr)
 #define E_LAMBDA(v)  ((struct Lambda*)v)

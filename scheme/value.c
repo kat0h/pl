@@ -45,19 +45,11 @@ void print_value(value v) {
 }
 void print_list(struct Cell *c) {
   printf("(");
-  while (c != NULL) {
-    print_value(c->car);
-    if ((void*)c->cdr == NULL) break;
-    if (TYPEOF(c->cdr) != CELL) {
-      printf(" . ");
-      print_value(c->cdr);
-      break;
-    }
-    if (E_CELL(c->cdr) != NULL) {
-      printf(" ");
-    }
-    c = E_CELL(c->cdr);
-  }
+  if (CELL_IS_EMPTY(c)) goto end;
+  print_value(c->car);
+  printf(" . ");
+  print_value(c->cdr);
+end:
   printf(")");
 }
 
@@ -85,7 +77,12 @@ value mk_cell_value(value car, value cdr) {
   return (value) c;
 }
 value mk_empty_cell_value() {
-  return (value) NULL;
+  struct Cell *c = malloc(sizeof(struct Cell));
+  c->flags = 0;
+  c->flags = (c->flags & ~TYPEMASK) | CELL;
+  c->car = (value)NULL;
+  c->cdr = (value)NULL;
+  return (value) c;
 }
 value mk_lambda_value(struct Cell *args, value body, frame *env) {
   struct Lambda *l = malloc(sizeof(struct Lambda));

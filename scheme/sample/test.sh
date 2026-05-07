@@ -16,7 +16,7 @@ for test_file in sample/*.scm; do # Corrected glob pattern
 
     # Get the content of the Scheme file to pass as an argument
     # The 'scm' executable is in the project root.
-    output=$(./scm "$(cat "$test_file")" 2>&1) # Corrected executable path
+    output=$(./scm "$test_file" 2>&1) # Corrected executable path
     exit_code=$?
 
     if [ $exit_code -ne 0 ]; then

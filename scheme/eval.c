@@ -11,12 +11,10 @@
 // eval
 value eval_cell(value exp, frame *env);
 value eval(value exp, frame *env) {
-  if ((void*)exp == NULL) {
-    throw("eval error: exp is NULL");
-  }
+  // expの型によって処理を振り分ける
   switch (TYPEOF(exp)) {
   case NUMBER:
-    // NUMBERはそれ以上評価できない終端の値
+    // NUMBERは値である
     return exp;
   case SYMBOL:
     // 環境からSYMBOLの値を探す
@@ -24,21 +22,22 @@ value eval(value exp, frame *env) {
   case CELL:
     return eval_cell(exp, env);
   case LAMBDA:
-    // LAMBDAはそれ以上評価できない終端の値
+    // LAMBDAは値である
     return exp;
   case IFUNC:
-    // IFUNCはそれ以上評価できない終端の値
+    // IFUNCは値である
     return exp;
   case BOOLEAN:
-    // BOOLEANはそれ以上評価できない終端の値
+    // BOOLEANは値である
     return exp;
   case STRING:
-    // STRINGはそれ以上評価できない終端の値
+    // STRINGは値である
     return exp;
   case CONTINUATION:
+    // CONTINUATIONは値である
     return exp;
   }
-  throw("Not implemented");
+  throw("Unreachable");
 }
 
 value eval_top(value exp, frame *env) {
@@ -59,8 +58,9 @@ value eval_cell(value exp, frame *env) {
     return exp;
   }
   // 関数を取得
-  value func = eval(CAR(exp), env);
-  value args = CDR(exp);
+  struct Cell *c_exp = E_CELL(exp);
+  value func = eval(CAR(c_exp), env);
+  value args = CDR(c_exp);
   if (TYPEOF(func) == IFUNC) {
     return E_IFUNC(func)(args, env);
   } else if (TYPEOF(func) == LAMBDA) {
@@ -74,7 +74,7 @@ value eval_cell(value exp, frame *env) {
       throw("call/cc error: invalid number of arguments");
     if (cell_len(E_CELL(args)) == 0)
       call_continuation(cont, mk_empty_cell_value());
-    call_continuation(cont, eval(CAR(args), env));
+    call_continuation(cont, eval(CAR(E_CELL(args)), env));
   }
   throw("call error: not callable");
 }
@@ -97,62 +97,62 @@ value eval_lambda(struct Lambda *f, struct Cell *args, frame *env) {
 // internal func
 value ifunc_add(value args, frame *env) {
   float sum = 0;
-  while (E_CELL(args) != NULL) {
-    value i = eval(CAR(args), env);
+  while (E_CELL(args) != NULL) { // TODO
+    value i = eval(CAR(E_CELL(args)), env);
     if (TYPEOF(i) != NUMBER)
       throw("add error: not number");
     sum += E_NUMBER(i);
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return mk_number_value(sum);
 }
 value ifunc_sub(value args, frame *env) {
-  value first = eval(CAR(args), env);
+  value first = eval(CAR(E_CELL(args)), env);
   if (TYPEOF(first) != NUMBER)
     throw("sub error: not number");
   float sum = E_NUMBER(first);
   if (cell_len(E_CELL(args)) == 1)
     return mk_number_value(-sum);
-  args = CDR(args);
+  args = CDR(E_CELL(args));
   while (E_CELL(args) != NULL) {
-    value i = eval(CAR(args), env);
+    value i = eval(CAR(E_CELL(args)), env);
     if (TYPEOF(i) != NUMBER)
       throw("sub error: not number");
     sum -= E_NUMBER(i);
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return mk_number_value(sum);
 }
 value ifunc_mul(value args, frame *env) {
   float sum = 1.0;
   while (E_CELL(args) != NULL) {
-    value i = eval(CAR(args), env);
+    value i = eval(CAR(E_CELL(args)), env);
     if (TYPEOF(i) != NUMBER) {
       throw("mul error: not number");
     }
     sum *= E_NUMBER(i);
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return mk_number_value(sum);
 }
 value ifunc_div(value args, frame *env) {
   float sum = 0;
   while (E_CELL(args) != NULL) {
-    value i = eval(CAR(args), env);
+    value i = eval(CAR(E_CELL(args)), env);
     if (TYPEOF(i) != NUMBER)
       throw("mul error: not number");
     if (E_NUMBER(i) == 0)
       throw("div error: zero division");
     sum /= E_NUMBER(i);
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return mk_number_value(sum);
 }
 value ifunc_modulo(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 2)
     throw("modulo error: invalid number of arguments");
-  value a = eval(CAR(args), env);
-  value b = eval(CAR(CDR(args)), env);
+  value a = eval(CAR(E_CELL(args)), env);
+  value b = eval(CAR(E_CELL(CDR(E_CELL(args)))), env);
   if (TYPEOF(a) != NUMBER || TYPEOF(b) != NUMBER)
     throw("modulo error: not number");
   int ia = (int)E_NUMBER(a);
@@ -162,8 +162,8 @@ value ifunc_modulo(value args, frame *env) {
 value ifunc_begin(value args, frame *env) {
   value i = mk_number_value(0);
   while (E_CELL(args) != NULL) {
-    i = eval(CAR(args), env);
-    args = CDR(args);
+    i = eval(CAR(E_CELL(args)), env);
+    args = CDR(E_CELL(args));
   }
   return i;
 }
@@ -171,16 +171,16 @@ value ifunc_define(value args, frame *env) {
   if (E_CELL(args) == NULL) {
     throw("define error: no symbol");
   }
-  if (TYPEOF(CAR(args)) != SYMBOL) {
+  if (TYPEOF(CAR(E_CELL(args))) != SYMBOL) {
     throw("define error: symbol is not symbol");
   }
-  char *symbol = E_SYMBOL(CAR(args));
-  args = CDR(args);
+  char *symbol = E_SYMBOL(CAR(E_CELL(args)));
+  args = CDR(E_CELL(args));
   if (E_CELL(args) == NULL) {
     throw("define error: too few arguments");
   }
-  value value = eval(CAR(args), env);
-  if (E_CELL(CDR(args)) != NULL) {
+  value value = eval(CAR(E_CELL(args)), env);
+  if (E_CELL(CDR(E_CELL(args))) != NULL) {
     throw("define error: too many arguments");
   }
   return define_to_env(env, symbol, value);
@@ -189,16 +189,16 @@ value ifunc_setbang(value args, frame *env) {
   if (E_CELL(args) == NULL) {
     throw("define error: no symbol");
   }
-  if (TYPEOF(CAR(args)) != SYMBOL) {
+  if (TYPEOF(CAR(E_CELL(args))) != SYMBOL) {
     throw("define error: symbol is not symbol");
   }
-  char *symbol = E_SYMBOL(CAR(args));
-  args = CDR(args);
+  char *symbol = E_SYMBOL(CAR(E_CELL(args)));
+  args = CDR(E_CELL(args));
   if (E_CELL(args) == NULL) {
     throw("define error: too few arguments");
   }
-  value value = eval(CAR(args), env);
-  if (E_CELL(CDR(args)) != NULL) {
+  value value = eval(CAR(E_CELL(args)), env);
+  if (E_CELL(CDR(E_CELL(args))) != NULL) {
     throw("define error: too many arguments");
   }
   return set_to_env(env, symbol, value);
@@ -211,70 +211,68 @@ value ifunc_showenv(value args, frame *env) {
   return mk_number_value(0);
 }
 int check_args(value args) {
-  // 空のリストはargsとして妥当
-  if ((void*)args == NULL)
-    return 1;
-  // argsはリストでないとならない
-  if (TYPEOF(args) != CELL)
+  if (TYPEOF(args) != CELL) // argsはリストでないとならない
     return 0;
-  // 各要素はSYMBOLでないとならない
-  if (TYPEOF(CAR(args)) != SYMBOL)
+  struct Cell *cargs = E_CELL(args);
+  if (CELL_IS_EMPTY(cargs)) // 空のリストはargsとして妥当
+    return 1;
+  if (TYPEOF(CAR(cargs)) != SYMBOL) // 各要素はSYMBOLでないとならない
     return 0;
   // 残りの要素も再帰的にチェック
-  return check_args(CDR(args));
+  return check_args(CDR(E_CELL(args)));
 }
 value ifunc_lambda(value args, frame *env) {
   // (lambda (args) body)
   if (E_CELL(args) == NULL)
     throw("lambda error: no args");
-  value first = CAR(args);
+  value first = CAR(E_CELL(args));
   if (!check_args(first))
     throw("lambda error: args is not list of symbol");
   struct Cell *largs = E_CELL(first);
-  if (E_CELL(CDR(args)) == NULL)
+  if (E_CELL(CDR(E_CELL(args))) == NULL)
     throw("lambda error: no body");
-  value body = CAR(CDR(args));
-  if (E_CELL(CDR(CDR(args))) != NULL)
+  value body = CAR(E_CELL(CDR(E_CELL(args))));
+  if (E_CELL(CDR(E_CELL(CDR(E_CELL(args))))) != NULL)
     throw("lambda error: too many body");
   return mk_lambda_value(largs, body, env);
 }
 value ifunc_print(value args, frame *env) {
   while (E_CELL(args) != NULL) {
-    print_value(eval(CAR(args), env));
+    print_value(eval(CAR(E_CELL(args)), env));
     puts("");
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return mk_number_value(0);
 }
 value ifunc_if(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 2 && cell_len(E_CELL(args)) != 3)
     throw("if error: invalid number of arguments");
-  value cond = eval(CAR(args), env);
+  value cond = eval(CAR(E_CELL(args)), env);
   if (truish(cond)) {
-    return eval(CAR(CDR(args)), env);
+    return eval(CAR(E_CELL(CDR(E_CELL(args)))), env);
   } else {
     if (cell_len(E_CELL(args)) == 2)
       return mk_empty_cell_value();
-    return eval(CAR(CDR(CDR(args))), env);
+    return eval(CAR(E_CELL(CDR(E_CELL(CDR(E_CELL(args)))))), env);
   }
 }
 value ifunc_quote(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 1)
     throw("quote error: invalid number of arguments");
-  return CAR(args);
+  return CAR(E_CELL(args));
 }
 enum { EQ = 0, LT, LE, GT, GE };
 int comp(value args, frame *env, char type) {
   int len = cell_len(E_CELL(args));
   if (len < 2)
     throw("comp error: too few arguments");
-  value car = eval(CAR(args), env);
+  value car = eval(CAR(E_CELL(args)), env);
   if (TYPEOF(car) != NUMBER)
     throw("comp error: not number");
   value cdr;
   int result = 1;
   for (int i = 0; i < len - 1; i++) {
-    cdr = eval(CAR(CDR(args)), env);
+    cdr = eval(CAR(E_CELL(CDR(E_CELL(args)))), env);
     if (TYPEOF(cdr) != NUMBER)
       throw("comp error: not number");
     switch (type) {
@@ -295,7 +293,7 @@ int comp(value args, frame *env, char type) {
       break;
     }
     car = cdr;
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return result;
 }
@@ -316,27 +314,27 @@ value ifunc_ge(value args, frame *env) {
 }
 value ifunc_and(value args, frame *env) {
   while (E_CELL(args) != NULL) {
-    int i = truish(eval(CAR(args), env));
+    int i = truish(eval(CAR(E_CELL(args)), env));
     if (i == 0)
       return mk_boolean_value(0);
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return mk_boolean_value(1);
 }
 value ifunc_or(value args, frame *env) {
   while (E_CELL(args) != NULL) {
-    int i = truish(eval(CAR(args), env));
+    int i = truish(eval(CAR(E_CELL(args)), env));
     if (i)
       return mk_boolean_value(1);
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return mk_boolean_value(0);
 }
 value eval_list(value args, frame *env, value default_value) {
   value i = default_value;
   while (E_CELL(args) != NULL) {
-    i = eval_top(CAR(args), env);
-    args = CDR(args);
+    i = eval_top(CAR(E_CELL(args)), env);
+    args = CDR(E_CELL(args));
   }
   return i;
 }
@@ -344,51 +342,51 @@ value ifunc_cond(value args, frame *env) {
   while (E_CELL(args) != NULL) {
     // (cond list* (else value*)?)
     // list = (value*)
-    value list = CAR(args);
+    value list = CAR(E_CELL(args));
     if (TYPEOF(list) != CELL)
       throw("cond error: not list");
     value cond;
     while (E_CELL(list) != NULL) {
-      if (TYPEOF(CAR(list)) == SYMBOL &&
-          strcmp(E_SYMBOL(CAR(list)), "else") == 0) {
+      if (TYPEOF(CAR(E_CELL(list))) == SYMBOL &&
+          strcmp(E_SYMBOL(CAR(E_CELL(list))), "else") == 0) {
         // elseのあとをチェック
-        if (E_CELL(CDR(args)) != NULL)
+        if (E_CELL(CDR(E_CELL(args))) != NULL)
           throw("cond error: else is not last");
-        return eval_list(CDR(list), env, mk_number_value(0));
+        return eval_list(CDR(E_CELL(list)), env, mk_number_value(0));
       }
-      cond = eval(CAR(list), env);
+      cond = eval(CAR(E_CELL(list)), env);
       if (truish(cond))
-        return eval_list(CDR(list), env, cond);
+        return eval_list(CDR(E_CELL(list)), env, cond);
       else
         break;
-      list = CDR(list);
+      list = CDR(E_CELL(list));
     }
-    args = CDR(args);
+    args = CDR(E_CELL(args));
   }
   return mk_empty_cell_value();
 }
 value ifunc_cons(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 2)
     fprintf(stderr, "cons error: invalid number of arguments");
-  value car = eval(CAR(args), env);
-  value cdr = eval(CAR(CDR(args)), env);
+  value car = eval(CAR(E_CELL(args)), env);
+  value cdr = eval(CAR(E_CELL(CDR(E_CELL(args)))), env);
   return mk_cell_value(car, cdr);
 }
 value ifunc_car(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 1)
     throw("car error: invalid number of arguments");
-  value c = eval(CAR(args), env);
+  value c = eval(CAR(E_CELL(args)), env);
   if (TYPEOF(c) != CELL)
     throw("car error: not pair");
-  return CAR(c);
+  return CAR(E_CELL(c));
 }
 value ifunc_cdr(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 1)
     throw("car error: invalid number of arguments");
-  value c = eval(CAR(args), env);
+  value c = eval(CAR(E_CELL(args)), env);
   if (TYPEOF(c) != CELL)
     throw("car error: not pair");
-  return CDR(c);
+  return CDR(E_CELL(c));
 }
 
 value ifunc_rand(value args, frame *env) {
@@ -400,7 +398,7 @@ value ifunc_rand(value args, frame *env) {
 value ifunc_length(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 1)
     throw("length error: invalid number of arguments");
-  value c = eval(CAR(args), env);
+  value c = eval(CAR(E_CELL(args)), env);
   if (TYPEOF(c) != CELL)
     throw("length error: not pair");
   return mk_number_value(cell_len(E_CELL(c)));
@@ -410,7 +408,7 @@ value ifunc_length(value args, frame *env) {
 value ifunc_sleep(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 1)
     throw("sleep error: invalid number of arguments");
-  value c = eval(CAR(args), env);
+  value c = eval(CAR(E_CELL(args)), env);
   if (TYPEOF(c) != NUMBER)
     throw("sleep error: not number");
   sleep(E_NUMBER(c));
@@ -420,7 +418,7 @@ value ifunc_sleep(value args, frame *env) {
 value ifunc_callcc(value args, frame *env) {
   if (cell_len(E_CELL(args)) != 1)
     throw("call/cc error: invalid number of arguments");
-  value lmd = eval(CAR(args), env);
+  value lmd = eval(CAR(E_CELL(args)), env);
   if (TYPEOF(lmd) != LAMBDA)
     throw("call/cc error: not lambda");
   value cont = mk_continuation_value();

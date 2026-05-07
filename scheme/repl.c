@@ -16,8 +16,8 @@ void repl() {
       printf("scm> ");
       continue;
     }
-    value *program = parse_value();
-    value *ret = eval_top(program, environ);
+    value program = parse_value();
+    value ret = eval_top(program, environ);
     printf("=> ");
     print_value(ret);
     puts("");

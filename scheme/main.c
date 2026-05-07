@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     else
       throw("repl must be run in tty");
   } else {
-    value *program = parse_program(argv[1]);
+    value program = parse_program(argv[1]);
     frame *environ = mk_initial_env();
     eval_list(program, environ, mk_empty_cell_value());
   }

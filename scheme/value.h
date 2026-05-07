@@ -67,6 +67,7 @@ struct Continuation {
 #define VALUEISAPOINTER(v) ((v & 0b111) == 0)
 #define TYPEOF(v) (((struct Header*)v)->flags & TYPEMASK)
 
+// E_XXXのマクロは，valueをそれぞれの構造体にキャストするために使用する
 #define E_NUMBER(v)  (((struct Number*)v)->number)
 #define E_SYMBOL(v)  (((struct Symbol*)v)->symbol)
 #define E_CELL(v)    ((struct Cell*)v)

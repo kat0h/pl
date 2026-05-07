@@ -4,10 +4,6 @@ SRCS = main.c continuation.c parse.c repl.c value.c env.c memory.c eval.c
 OBJS = $(SRCS:.c=.o)
 TARGET = scm
 
-TEST_SRCS = test.c
-TEST_OBJS_FILES = test.o main.test.o continuation.o parse.o value.o env.o memory.o eval.o
-TEST_RUNNER = test_runner
-
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
@@ -16,18 +12,11 @@ $(TARGET): $(OBJS)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-test: $(TEST_RUNNER)
-	./sample/test.sh
-	./$(TEST_RUNNER)
-
-$(TEST_RUNNER): $(TEST_OBJS_FILES)
-	$(CC) $(CFLAGS) -o $@ $^
-
-main.test.o: main.c
-	$(CC) $(CFLAGS) -DTEST_BUILD -c $< -o $@
+test: all
+	./test/test.sh
 
 clean:
-	rm -f $(TARGET) $(TEST_RUNNER) $(OBJS) test.o main.test.o
+	rm -f $(TARGET) $(OBJS)
 
 tags:
 	ctags -R .

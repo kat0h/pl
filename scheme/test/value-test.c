@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "value.h"
-#include "env.h"
-#include "main.h"
+#include "../value.h"
+#include "../env.h"
+#include "../main.h"
 
 int main() {
   // print_value

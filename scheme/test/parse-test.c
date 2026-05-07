@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "parse.h"
+#include "../parse.h"
 
 int main() {
   value a = parse_program("(print (quote (1 2 3)))");

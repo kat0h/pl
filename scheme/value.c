@@ -126,9 +126,9 @@ value mk_continuation_value() {
 int cell_len(struct Cell *c) {
   int len = 0;
   for(;;){
+    if (CELL_IS_EMPTY(c)) break;
     len++;
     c = E_CELL(CDR(c));
-    if (CELL_IS_EMPTY(c)) break;
   }
   return len;
 }

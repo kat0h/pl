@@ -13,6 +13,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 test: all
+	./sample/test.sh
 	./test/test.sh
 
 clean:

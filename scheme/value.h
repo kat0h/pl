@@ -81,6 +81,8 @@ struct Continuation {
 #define E_STRING(v)  (((struct String*)v)->string)
 #define E_CONTINUATION(v) (((struct Continuation*)v))
 
+#define VALUE(v) ((value)v)
+
 value mk_number_value(float number);
 value mk_symbol_value(char *symbol);
 value mk_cell_value(value car, value cdr);

@@ -9,7 +9,7 @@
 #include "continuation.h"
 
 // eval
-value eval_cell(value exp, frame *env);
+value eval_cell(struct Cell *exp, frame *env);
 value eval(value exp, frame *env) {
   // expの型によって処理を振り分ける
   switch (TYPEOF(exp)) {
@@ -20,7 +20,7 @@ value eval(value exp, frame *env) {
     // 環境からSYMBOLの値を探す
     return lookup_frame(env, E_SYMBOL(exp));
   case CELL:
-    return eval_cell(exp, env);
+    return eval_cell(E_CELL(exp), env);
   case LAMBDA:
     // LAMBDAは値である
     return exp;
@@ -46,32 +46,18 @@ value eval_top(value exp, frame *env) {
 }
 
 value eval_lambda(struct Lambda *f, struct Cell *args, frame *env);
-value eval_cell(value exp, frame *env) {
-  if ((void*)exp == NULL) {
-    throw("eval error: exp is NULL");
-  }
-  if (TYPEOF(exp) != CELL) {
-    throw("eval error: exp is not CELL");
-  }
-  // 空リストは妥当な式ではない
-  if (E_CELL(exp) == NULL) {
-    return exp;
-  }
-  // 関数を取得
-  struct Cell *c_exp = E_CELL(exp);
-  value func = eval(CAR(c_exp), env);
-  value args = CDR(c_exp);
+value eval_cell(struct Cell *cell, frame *env) {
+  if (CELL_IS_EMPTY(cell)) return VALUE(cell); // ()は値である
+  value func = eval(CAR(cell), env);
+  value args = CDR(cell);
   if (TYPEOF(func) == IFUNC) {
     return E_IFUNC(func)(args, env);
   } else if (TYPEOF(func) == LAMBDA) {
-    if (TYPEOF(args) != CELL)
-      throw("eval error: args is not CELL");
+    if (TYPEOF(args) != CELL) throw("eval error: args is not CELL");
     return eval_lambda(E_LAMBDA(func), E_CELL(args), env);
   } else if (TYPEOF(func) == CONTINUATION) {
     continuation *cont = E_CONTINUATION(func);
-    // 引数の数をチェック
-    if (cell_len(E_CELL(args)) > 1)
-      throw("call/cc error: invalid number of arguments");
+    if (cell_len(E_CELL(args)) > 1) throw("call/cc error: invalid number of arguments"); // 引数の数は0か1でなければならない
     if (cell_len(E_CELL(args)) == 0)
       call_continuation(cont, mk_empty_cell_value());
     call_continuation(cont, eval(CAR(E_CELL(args)), env));

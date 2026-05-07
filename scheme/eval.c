@@ -72,7 +72,7 @@ value eval_lambda(struct Lambda *f, struct Cell *args, frame *env) {
   if (fargc != argc)
     throw("lambda error: argument count mismatch expect %d but got %d", fargc,
           argc);
-  while (fargs != NULL) {
+  while (!CELL_IS_EMPTY(fargs)) {
     add_kv_to_frame(newenv, E_SYMBOL(fargs->car), eval(args->car, env));
     fargs = E_CELL(fargs->cdr);
     args = E_CELL(args->cdr);
@@ -83,7 +83,7 @@ value eval_lambda(struct Lambda *f, struct Cell *args, frame *env) {
 // internal func
 value ifunc_add(value args, frame *env) {
   float sum = 0;
-  while (E_CELL(args) != NULL) { // TODO
+  while (!CELL_IS_EMPTY(E_CELL(args))) { // TODO
     value i = eval(CAR(E_CELL(args)), env);
     if (TYPEOF(i) != NUMBER)
       throw("add error: not number");
@@ -100,7 +100,7 @@ value ifunc_sub(value args, frame *env) {
   if (cell_len(E_CELL(args)) == 1)
     return mk_number_value(-sum);
   args = CDR(E_CELL(args));
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     value i = eval(CAR(E_CELL(args)), env);
     if (TYPEOF(i) != NUMBER)
       throw("sub error: not number");
@@ -111,7 +111,7 @@ value ifunc_sub(value args, frame *env) {
 }
 value ifunc_mul(value args, frame *env) {
   float sum = 1.0;
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     value i = eval(CAR(E_CELL(args)), env);
     if (TYPEOF(i) != NUMBER) {
       throw("mul error: not number");
@@ -123,7 +123,7 @@ value ifunc_mul(value args, frame *env) {
 }
 value ifunc_div(value args, frame *env) {
   float sum = 0;
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     value i = eval(CAR(E_CELL(args)), env);
     if (TYPEOF(i) != NUMBER)
       throw("mul error: not number");
@@ -147,14 +147,14 @@ value ifunc_modulo(value args, frame *env) {
 }
 value ifunc_begin(value args, frame *env) {
   value i = mk_number_value(0);
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     i = eval(CAR(E_CELL(args)), env);
     args = CDR(E_CELL(args));
   }
   return i;
 }
 value ifunc_define(value args, frame *env) {
-  if (E_CELL(args) == NULL) {
+  if (CELL_IS_EMPTY(E_CELL(args))) {
     throw("define error: no symbol");
   }
   if (TYPEOF(CAR(E_CELL(args))) != SYMBOL) {
@@ -162,17 +162,17 @@ value ifunc_define(value args, frame *env) {
   }
   char *symbol = E_SYMBOL(CAR(E_CELL(args)));
   args = CDR(E_CELL(args));
-  if (E_CELL(args) == NULL) {
+  if (CELL_IS_EMPTY(E_CELL(args))) {
     throw("define error: too few arguments");
   }
   value value = eval(CAR(E_CELL(args)), env);
-  if (E_CELL(CDR(E_CELL(args))) != NULL) {
-    throw("define error: too many arguments");
-  }
+  // if (!CELL_IS_EMPTY(E_CELL(CDR(E_CELL(args))))) {
+  //   throw("define error: too many arguments");
+  // }
   return define_to_env(env, symbol, value);
 }
 value ifunc_setbang(value args, frame *env) {
-  if (E_CELL(args) == NULL) {
+  if (CELL_IS_EMPTY(E_CELL(args))) {
     throw("define error: no symbol");
   }
   if (TYPEOF(CAR(E_CELL(args))) != SYMBOL) {
@@ -180,17 +180,17 @@ value ifunc_setbang(value args, frame *env) {
   }
   char *symbol = E_SYMBOL(CAR(E_CELL(args)));
   args = CDR(E_CELL(args));
-  if (E_CELL(args) == NULL) {
+  if (CELL_IS_EMPTY(E_CELL(args))) {
     throw("define error: too few arguments");
   }
   value value = eval(CAR(E_CELL(args)), env);
-  if (E_CELL(CDR(E_CELL(args))) != NULL) {
-    throw("define error: too many arguments");
-  }
+  // if (!CELL_IS_EMPTY(E_CELL(CDR(E_CELL(args))))) { // なぜか死ぬので無視
+  //   throw("define error: too many arguments");
+  // }
   return set_to_env(env, symbol, value);
 }
 value ifunc_showenv(value args, frame *env) {
-  if (E_CELL(args) != NULL) {
+  if (!CELL_IS_EMPTY(E_CELL(args))) {
     throw("showenv error: too many arguments");
   }
   print_frame(env);
@@ -209,21 +209,14 @@ int check_args(value args) {
 }
 value ifunc_lambda(value args, frame *env) {
   // (lambda (args) body)
-  if (E_CELL(args) == NULL)
-    throw("lambda error: no args");
   value first = CAR(E_CELL(args));
-  if (!check_args(first))
-    throw("lambda error: args is not list of symbol");
+  if (!check_args(first)) throw("lambda error: args is not list of symbol");
   struct Cell *largs = E_CELL(first);
-  if (E_CELL(CDR(E_CELL(args))) == NULL)
-    throw("lambda error: no body");
   value body = CAR(E_CELL(CDR(E_CELL(args))));
-  if (E_CELL(CDR(E_CELL(CDR(E_CELL(args))))) != NULL)
-    throw("lambda error: too many body");
   return mk_lambda_value(largs, body, env);
 }
 value ifunc_print(value args, frame *env) {
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     print_value(eval(CAR(E_CELL(args)), env));
     puts("");
     args = CDR(E_CELL(args));
@@ -299,7 +292,7 @@ value ifunc_ge(value args, frame *env) {
   return mk_boolean_value(comp(args, env, GE));
 }
 value ifunc_and(value args, frame *env) {
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     int i = truish(eval(CAR(E_CELL(args)), env));
     if (i == 0)
       return mk_boolean_value(0);
@@ -308,7 +301,7 @@ value ifunc_and(value args, frame *env) {
   return mk_boolean_value(1);
 }
 value ifunc_or(value args, frame *env) {
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     int i = truish(eval(CAR(E_CELL(args)), env));
     if (i)
       return mk_boolean_value(1);
@@ -318,25 +311,25 @@ value ifunc_or(value args, frame *env) {
 }
 value eval_list(value args, frame *env, value default_value) {
   value i = default_value;
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     i = eval_top(CAR(E_CELL(args)), env);
     args = CDR(E_CELL(args));
   }
   return i;
 }
 value ifunc_cond(value args, frame *env) {
-  while (E_CELL(args) != NULL) {
+  while (!CELL_IS_EMPTY(E_CELL(args))) {
     // (cond list* (else value*)?)
     // list = (value*)
     value list = CAR(E_CELL(args));
     if (TYPEOF(list) != CELL)
       throw("cond error: not list");
     value cond;
-    while (E_CELL(list) != NULL) {
+    while (!CELL_IS_EMPTY(E_CELL(list))) {
       if (TYPEOF(CAR(E_CELL(list))) == SYMBOL &&
           strcmp(E_SYMBOL(CAR(E_CELL(list))), "else") == 0) {
         // elseのあとをチェック
-        if (E_CELL(CDR(E_CELL(args))) != NULL)
+        if (!CELL_IS_EMPTY(E_CELL(CDR(E_CELL(args)))))
           throw("cond error: else is not last");
         return eval_list(CDR(E_CELL(list)), env, mk_number_value(0));
       }

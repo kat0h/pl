@@ -14,10 +14,11 @@
 int main(int argc, char *argv[]) {
   srand(time(NULL));
   if (argc < 2) {
-    if (isatty(fileno(stdin)))
-      repl();
-    else
-      throw("repl must be run in tty");
+    repl();
+    // if (isatty(fileno(stdin)))
+    //   repl();
+    // else
+    //   throw("repl must be run in tty");
   } else {
     value program = parse_program(argv[1]);
     frame *environ = mk_initial_env();

@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -g -Wall
-SRCS = main.c continuation.c parse.c repl.c value.c env.c memory.c eval.c
+SRCS = main.c continuation.c parse.c repl.c value.c env.c memory.c eval.c ifunc.c
 OBJS = $(SRCS:.c=.o)
 TARGET = scm
 

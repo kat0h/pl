@@ -208,6 +208,10 @@ test_cases = [
     p: [postfix, 1, 1, nget, 0, lt, [0, swap, sub], [], sel, exec],
     args: [6],
     v_expected: 6
+  }, {
+    p: [postfix, 2, [2, [3, mul, add], exec], 1, swap, exec, sub],
+    args: [4, 5],
+    v_expected: -3
   }
 ]
 
@@ -216,7 +220,7 @@ test_cases.each_with_index do |c, i|
   p = c[:p]
   args = c[:args]
   v_expected = c[:v_expected]
-  v_actual = eval_postfix_ver2(p, args)
+  v_actual = eval_postfix(p, args)
   if v_actual == v_expected
     puts 'Passed'
     next

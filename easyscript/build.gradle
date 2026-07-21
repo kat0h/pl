@@ -20,9 +20,25 @@ ext {
   antlr_version = '4.12.0'
 }
 
+test {
+  useJUnitPlatform()
+  // jvmArgs '-ea',
+  //         '--add-exports',
+  //             'org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED',
+  //         '--add-exports',
+  //             'org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED',
+  //         '--add-exports',
+  //             'org.graalvm.truffle/com.oracle.truffle.api.staticobject=ALL-UNNAMED'
+  testLogging {
+    events 'failed'
+    exceptionFormat 'full'
+  }
+}
 
 dependencies {
   implementation "org.graalvm.truffle:truffle-api:$graal_version"
   annotationProcessor "org.graalvm.truffle:truffle-dsl-processor:$graal_version"
   testImplementation "org.junit.jupiter:junit-jupiter:5.9.3"
+  // 今のバージョンはこれが必要らしい？
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }

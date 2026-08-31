@@ -1,6 +1,7 @@
 plugins {
   id 'java'
   id 'application'
+  id 'antlr'
 }
 
 repositories {
@@ -31,7 +32,7 @@ test {
   //             'org.graalvm.truffle/com.oracle.truffle.api.staticobject=ALL-UNNAMED'
   testLogging {
     events 'failed'
-    exceptionFormat 'full'
+    exceptionFormat = 'full'
   }
 }
 
@@ -41,4 +42,5 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter:5.9.3"
   // 今のバージョンはこれが必要らしい？
   testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+  antlr "org.antlr:antlr4:4.12.0"
 }

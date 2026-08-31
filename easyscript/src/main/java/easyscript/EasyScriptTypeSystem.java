@@ -14,5 +14,17 @@ public abstract class EasyScriptTypeSystem {
     return value;
   }
   // TypeCheck
+  // @TypeCheck(double.class)
+  // public static boolean isDouble(Object value) {
+  //   return value instanceof Double || value instanceof Integer;
+  // }
   // TypeCast
+  // @TypeCast(double.class)
+  // public static double asDouble(Object value) {
+  //   if (value instanceof Integer) {
+  //     return ((Integer) value).doubleValue();
+  //   } else {
+  //     return (double) value;
+  //   }
+  // }
 }

@@ -40,7 +40,8 @@ dependencies {
   implementation "org.graalvm.truffle:truffle-api:$graal_version"
   annotationProcessor "org.graalvm.truffle:truffle-dsl-processor:$graal_version"
   testImplementation "org.junit.jupiter:junit-jupiter:5.9.3"
-  // 今のバージョンはこれが必要らしい？
-  testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+  testRuntimeOnly "org.junit.platform:junit-platform-launcher" // 今のバージョンはこれが必要らしい？
   antlr "org.antlr:antlr4:4.12.0"
+  implementation "org.graalvm.polyglot:polyglot:$graal_version"
+  implementation "org.graalvm.polyglot:js:$graal_version" // PolyglotTest.javaでjavascriptを使用している
 }

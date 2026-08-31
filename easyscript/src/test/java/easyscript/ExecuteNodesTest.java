@@ -12,7 +12,7 @@ class ExecuteNodesTest {
      */
     @Test
     void adds_12_and_34_correctly() {
-        EasyScriptNode exprNode = new AdditionNode(
+        EasyScriptNode exprNode = AdditionNodeGen.create(
                 new IntLiteralNode(12),
                 new IntLiteralNode(34));
         var rootNode = new EasyScriptRootNode(exprNode);
@@ -29,7 +29,7 @@ class ExecuteNodesTest {
      */
     @Test
     void adding_1_to_int_max_does_not_overflow() {
-        EasyScriptNode exprNode = new AdditionNode(
+        EasyScriptNode exprNode = AdditionNodeGen.create(
                 new IntLiteralNode(Integer.MAX_VALUE),
                 new IntLiteralNode(1));
         var rootNode = new EasyScriptRootNode(exprNode);
@@ -45,7 +45,7 @@ class ExecuteNodesTest {
      */
     @Test
     void adds_2_point_5_and_6_correctly() {
-        EasyScriptNode exprNode = new AdditionNode(
+        EasyScriptNode exprNode = AdditionNodeGen.create(
                 new DoubleLiteralNode(2.5),
                 new IntLiteralNode(6));
         var rootNode = new EasyScriptRootNode(exprNode);

@@ -14,7 +14,7 @@ public final class DoubleLiteralNode extends EasyScriptNode {
   }
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    return this.value;
+    return this.executeDouble(frame);
   }
   @Override
   public int executeInt(VirtualFrame frame) throws UnexpectedResultException {

@@ -1,4 +1,6 @@
-package easyscript;
+package easyscript.node;
+
+import easyscript.EasyScriptException;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;

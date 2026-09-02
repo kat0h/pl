@@ -1,5 +1,19 @@
 package easyscript;
 
+import easyscript.node.AdditionExprNode;
+import easyscript.node.AdditionExprNodeGen;
+import easyscript.node.DoubleLiteralExprNode;
+import easyscript.node.EasyScriptExprNode;
+import easyscript.node.EasyScriptStmtNode;
+import easyscript.node.ExprStmtNode;
+import easyscript.node.GlobalVarAssignmentExprNode;
+import easyscript.node.GlobalVarAssignmentExprNodeGen;
+import easyscript.node.GlobalVarDeclStmtNodeGen;
+import easyscript.node.GlobalVarReferenceExprNode;
+import easyscript.node.GlobalVarReferenceExprNodeGen;
+import easyscript.node.IntLiteralExprNode;
+import easyscript.node.UndefinedLiteralExprNode;
+
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;

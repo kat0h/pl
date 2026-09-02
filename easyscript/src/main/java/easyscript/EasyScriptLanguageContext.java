@@ -1,5 +1,7 @@
 package easyscript;
 
+import easyscript.runtime.GlobalScopeObject;
+
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.nodes.Node;
 

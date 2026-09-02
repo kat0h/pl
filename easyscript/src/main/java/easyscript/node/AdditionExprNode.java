@@ -1,4 +1,4 @@
-package easyscript;
+package easyscript.node;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;

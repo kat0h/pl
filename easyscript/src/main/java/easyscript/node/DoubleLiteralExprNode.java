@@ -1,4 +1,4 @@
-package easyscript;
+package easyscript.node;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;

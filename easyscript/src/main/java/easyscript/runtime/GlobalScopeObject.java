@@ -1,5 +1,7 @@
-package easyscript;
+package easyscript.runtime;
 
+import easyscript.EasyScriptException;
+import easyscript.EasyScriptTruffleLanguage;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;

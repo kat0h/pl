@@ -1,4 +1,7 @@
-package easyscript;
+package easyscript.node;
+
+import easyscript.EasyScriptTruffleLanguage;
+import easyscript.runtime.Undefined;
 
 import java.util.List;
 import com.oracle.truffle.api.frame.VirtualFrame;

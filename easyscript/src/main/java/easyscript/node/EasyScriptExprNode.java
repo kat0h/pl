@@ -1,5 +1,6 @@
-package easyscript;
+package easyscript.node;
 
+import easyscript.EasyScriptTypeSystem;
 
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.VirtualFrame;

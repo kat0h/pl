@@ -12,6 +12,8 @@ import easyscript.node.GlobalVarDeclStmtNodeGen;
 import easyscript.node.GlobalVarReferenceExprNode;
 import easyscript.node.GlobalVarReferenceExprNodeGen;
 import easyscript.node.IntLiteralExprNode;
+import easyscript.node.NegationExprNode;
+import easyscript.node.NegationExprNodeGen;
 import easyscript.node.UndefinedLiteralExprNode;
 
 import org.antlr.v4.runtime.BailErrorStrategy;
@@ -80,15 +82,23 @@ public final class EasyScriptTruffleParser {
   }
 
   private static EasyScriptExprNode parseExpr2(EasyScriptParser.Expr2Context expr2) {
-    return expr2 instanceof EasyScriptParser.AddExpr2Context
-        ? parseAdditionExpr((EasyScriptParser.AddExpr2Context) expr2)
-        : parseExpr3(((EasyScriptParser.PrecedenceThreeExpr2Context) expr2).expr3());
+    if (expr2 instanceof EasyScriptParser.AddExpr2Context) {
+      return parseAdditionExpr((EasyScriptParser.AddExpr2Context) expr2);
+    } else if (expr2 instanceof EasyScriptParser.UnaryMinusExpr2Context) {
+      return parseNegationExpr((EasyScriptParser.UnaryMinusExpr2Context) expr2);
+    } else {
+      return parseExpr3(((EasyScriptParser.PrecedenceThreeExpr2Context) expr2).expr3());
+    }
   }
 
   private static AdditionExprNode parseAdditionExpr(EasyScriptParser.AddExpr2Context addExpr) {
     return AdditionExprNodeGen.create(
         parseExpr2(addExpr.left),
         parseExpr3(addExpr.right));
+  }
+
+  private static NegationExprNode parseNegationExpr(EasyScriptParser.UnaryMinusExpr2Context unaryMinusExpr) {
+    return NegationExprNodeGen.create(parseExpr3(unaryMinusExpr.expr3()));
   }
 
   private static EasyScriptExprNode parseExpr3(EasyScriptParser.Expr3Context expr3) {

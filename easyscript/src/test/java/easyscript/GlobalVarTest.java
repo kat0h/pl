@@ -40,4 +40,9 @@ class GlobalVarTest {
     assertEquals(7, a.asInt());
     assertEquals(Set.of("a", "b", "c"), globalBindings.getMemberKeys());
   }
+  @Test
+  void unaryMinus() {
+    Value result = this.context.eval("ezs", "-1");
+    assertEquals(-1, result.asInt());
+  }
 }

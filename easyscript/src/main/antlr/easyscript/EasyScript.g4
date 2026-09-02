@@ -15,10 +15,13 @@ expr1   : ID '=' expr1               #AssignmentExpr1
         | expr2                      #PrecedenceTwoExpr1
         ;
 expr2   : left=expr2 '+' right=expr3 #AddExpr2
+        | '-' expr3                  #UnaryMinusExpr2
         | expr3                      #PrecedenceThreeExpr2
         ;
 expr3   : literal                    #LiteralExpr3
         | ID                         #ReferenceExpr3
+        | ID '.' ID                  #ComplexReferenceExp3
+        | expr3 '(' (expr1 (',' expr1)*)? ')' #CallExpr3
         | '(' expr1 ')'              #PrecedenceOneExpr3
         ;
 literal : INT | DOUBLE | 'undefined' ;

@@ -1,10 +1,10 @@
 package easyscript;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-public final class IntLiteralNode extends EasyScriptNode {
+public final class IntLiteralExprNode extends EasyScriptExprNode {
   private final int value;
   // コンストラクタ
-  public IntLiteralNode(int value) {
+  public IntLiteralExprNode(int value) {
     this.value = value;
   }
   @Override

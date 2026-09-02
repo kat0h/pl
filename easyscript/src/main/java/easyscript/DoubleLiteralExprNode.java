@@ -1,11 +1,12 @@
 package easyscript;
+
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
-public final class DoubleLiteralNode extends EasyScriptNode {
+public final class DoubleLiteralExprNode extends EasyScriptExprNode {
   private final double value;
   // コンストラクタ
-  public DoubleLiteralNode(double value) {
+  public DoubleLiteralExprNode(double value) {
     this.value = value;
   }
   @Override

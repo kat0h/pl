@@ -3,4 +3,8 @@
 .gradle/
 build/
 .java-version
-
+bin
+.settings
+.project
+.factorypath
+.classpath

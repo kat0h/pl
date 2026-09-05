@@ -1,0 +1,50 @@
+myeval.scmのmyeval/myapplyを一つのループにする
+
+
+$ rlwrap gosh -l ./myeval.scm -e '(driver-loop)'
+
+(define x (+ 1 2))
+=> ok
+(+ x 3)
+=> 6
+
+
+---------------------------------------------------------------------
+(define (myeval exp env)
+  (let self ((exp exp) (env env))
+    (if (not (pair? exp))
+~~略~~
+          (else
+           ; 特殊形式でなければ関数呼出し (apply)
+           (let ((func (self (car exp) env)) (arguments (map (lambda (x) (self x env)) (cdr exp))))
+            (case (car func)
+               ((primitive)  ; （ソース言語上の）組込み関数
+                (apply-primitive-function func arguments))
+               ((function)   ; （ソース言語上の）lambda式による関数の呼出し
+                (self (caddr func)        ; body
+                        (extend-environment ; 環境を拡張
+                         (cadr func)        ; parameters
+                         arguments          ; 実引数
+                         (cadddr func))))   ; env
+               (else
+                (myerror "Unknown procedure type -- APPLY" func)))))))))
+
+eval/applyをevalに纏める．
+if式の述語部分のevalと，applyのlambda式による関数呼び出しでは，呼び出しはtailcall
+
+
+---------------------------------------------------------------------
+fib
+
+goshで(fib 40)
+$ time gosh './fib.scm'
+real    0m12.544s
+user    0m12.484s
+sys     0m0.016s
+
+./benchmark.shはmyevalの性能をfibの実装により測定する
+
+---------------------------------------------------------------------------
+CEKマシン
+An Introduction to Continuations / Luc Moreauを元に
+
